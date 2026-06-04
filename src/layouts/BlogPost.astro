@@ -29,7 +29,7 @@ const { title, description, pubDate, updatedDate } = Astro.props;
           <p class="post-description">{description}</p>
           <hr />
         </div>
-        <div class="prose">
+        <div class="prose" id="post-content">
           <slot />
         </div>
       </article>
@@ -37,6 +37,108 @@ const { title, description, pubDate, updatedDate } = Astro.props;
     <Footer />
   </body>
 </html>
+
+<script>
+  const btn = document.getElementById('translate-btn') as HTMLButtonElement;
+  const content = document.getElementById('post-content');
+
+  let translated = false;
+  let originalHTML = '';
+  let originalH1 = '';
+  let originalDesc = '';
+
+  function extractTextNodes(root: Node): Text[] {
+    const nodes: Text[] = [];
+    const skip = ['CODE', 'PRE', 'SVG', 'SCRIPT', 'STYLE'];
+
+    function walk(node: Node) {
+      if (node.nodeType === Node.TEXT_NODE) {
+        const text = node.textContent?.trim();
+        if (text && text.length > 2) nodes.push(node as Text);
+      } else if (node.nodeType === Node.ELEMENT_NODE) {
+        if (skip.includes((node as Element).tagName)) return;
+        for (const child of Array.from(node.childNodes)) walk(child);
+      }
+    }
+    walk(root);
+    return nodes;
+  }
+
+  function chunkText(texts: string[], maxLen = 480): string[][] {
+    const chunks: string[][] = [];
+    let current: string[] = [];
+    let currentLen = 0;
+
+    for (const text of texts) {
+      if (currentLen + text.length > maxLen) {
+        if (current.length) chunks.push(current);
+        current = [text];
+        currentLen = text.length;
+      } else {
+        current.push(text);
+        currentLen += text.length;
+      }
+    }
+    if (current.length) chunks.push(current);
+    return chunks;
+  }
+
+  async function translateChunk(texts: string[]): Promise<string[]> {
+    const joined = texts.join('\n||||\n');
+    const res = await fetch(
+      `https://api.mymemory.translated.net/get?q=${encodeURIComponent(joined)}&langpair=es|en`
+    );
+    const data = await res.json();
+    const result = data.responseData.translatedText as string;
+    return result.split('\n||||\n');
+  }
+
+  btn?.addEventListener('click', async () => {
+    if (!content) return;
+
+    const h1 = document.querySelector('h1');
+    const desc = document.querySelector('.post-description');
+
+    if (!translated) {
+      btn.textContent = '...';
+      btn.disabled = true;
+
+      originalHTML = content.innerHTML;
+      originalH1 = h1?.textContent || '';
+      originalDesc = desc?.textContent || '';
+
+      try {
+        const areas = [h1, desc, content].filter(Boolean) as Node[];
+        const nodes = areas.flatMap(el => extractTextNodes(el));
+        const texts = nodes.map(n => n.textContent || '');
+        const chunks = chunkText(texts, 300);
+
+        const results = await Promise.all(chunks.map(translateChunk));
+        const flat = results.flat();
+
+        nodes.forEach((node, i) => {
+          if (flat[i]) node.textContent = flat[i];
+        });
+
+        btn.textContent = 'ES';
+        btn.disabled = false;
+        translated = true;
+      } catch {
+        content.innerHTML = originalHTML;
+        if (h1) h1.textContent = originalH1;
+        if (desc) desc.textContent = originalDesc;
+        btn.textContent = 'EN';
+        btn.disabled = false;
+      }
+    } else {
+      content.innerHTML = originalHTML;
+      if (h1) h1.textContent = originalH1;
+      if (desc) desc.textContent = originalDesc;
+      btn.textContent = 'EN';
+      translated = false;
+    }
+  });
+</script>
 
 <style>
   article {

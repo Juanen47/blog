@@ -9,6 +9,7 @@ import HeaderLink from './HeaderLink.astro';
       <HeaderLink href="/blog">Blog</HeaderLink>
       <HeaderLink href="/about">Sobre mí</HeaderLink>
       <a href="https://jelopez.link" target="_blank">← Web</a>
+      <button id="translate-btn" class="translate-btn" title="Translate to English">EN</button>
     </div>
   </nav>
 </header>
@@ -64,9 +65,28 @@ import HeaderLink from './HeaderLink.astro';
     padding: 0;
   }
 
-  .nav-links a:hover,
-  .nav-links a.active {
+  .nav-links a:hover { color: #e03030; }
+
+  .translate-btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: rgba(232,232,232,0.5);
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.12);
+    padding: 0.25rem 0.6rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .translate-btn:hover {
+    border-color: #e03030;
     color: #e03030;
-    border-bottom: none;
+  }
+
+  .translate-btn:disabled {
+    opacity: 0.4;
+    cursor: wait;
   }
 </style>
