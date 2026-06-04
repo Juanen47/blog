@@ -171,4 +171,6 @@ li { margin-bottom: 0.4rem; }
   h1 { font-size: 1.8rem; }
   h2 { font-size: 1.4rem; }
   body { font-size: 15px; }
+  table { display: block; overflow-x: auto; white-space: nowrap; }
+  pre { overflow-x: auto; }
 }
