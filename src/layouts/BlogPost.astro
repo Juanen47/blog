@@ -27,6 +27,7 @@ const { title, description, pubDate, updatedDate } = Astro.props;
           </div>
           <h1>{title}</h1>
           <p class="post-description">{description}</p>
+          <button id="translate-btn-mobile" class="translate-btn-mobile">EN</button>
           <hr />
         </div>
         <div class="prose" id="post-content">
@@ -39,13 +40,19 @@ const { title, description, pubDate, updatedDate } = Astro.props;
 </html>
 
 <script>
-  const btn = document.getElementById('translate-btn') as HTMLButtonElement;
+  const btnDesktop = document.getElementById('translate-btn') as HTMLButtonElement;
+  const btnMobile = document.getElementById('translate-btn-mobile') as HTMLButtonElement;
   const content = document.getElementById('post-content');
 
   let translated = false;
   let originalHTML = '';
   let originalH1 = '';
   let originalDesc = '';
+
+  function setButtonState(text: string, disabled: boolean) {
+    if (btnDesktop) { btnDesktop.textContent = text; btnDesktop.disabled = disabled; }
+    if (btnMobile) { btnMobile.textContent = text; btnMobile.disabled = disabled; }
+  }
 
   function extractTextNodes(root: Node): Text[] {
     const nodes: Text[] = [];
@@ -64,7 +71,7 @@ const { title, description, pubDate, updatedDate } = Astro.props;
     return nodes;
   }
 
-  function chunkText(texts: string[], maxLen = 480): string[][] {
+  function chunkText(texts: string[], maxLen = 300): string[][] {
     const chunks: string[][] = [];
     let current: string[] = [];
     let currentLen = 0;
@@ -93,15 +100,14 @@ const { title, description, pubDate, updatedDate } = Astro.props;
     return result.split('\n||||\n');
   }
 
-  btn?.addEventListener('click', async () => {
+  async function handleTranslate() {
     if (!content) return;
 
     const h1 = document.querySelector('h1');
     const desc = document.querySelector('.post-description');
 
     if (!translated) {
-      btn.textContent = '...';
-      btn.disabled = true;
+      setButtonState('...', true);
 
       originalHTML = content.innerHTML;
       originalH1 = h1?.textContent || '';
@@ -111,7 +117,7 @@ const { title, description, pubDate, updatedDate } = Astro.props;
         const areas = [h1, desc, content].filter(Boolean) as Node[];
         const nodes = areas.flatMap(el => extractTextNodes(el));
         const texts = nodes.map(n => n.textContent || '');
-        const chunks = chunkText(texts, 300);
+        const chunks = chunkText(texts);
 
         const results = await Promise.all(chunks.map(translateChunk));
         const flat = results.flat();
@@ -120,24 +126,25 @@ const { title, description, pubDate, updatedDate } = Astro.props;
           if (flat[i]) node.textContent = flat[i];
         });
 
-        btn.textContent = 'ES';
-        btn.disabled = false;
+        setButtonState('ES', false);
         translated = true;
       } catch {
         content.innerHTML = originalHTML;
         if (h1) h1.textContent = originalH1;
         if (desc) desc.textContent = originalDesc;
-        btn.textContent = 'EN';
-        btn.disabled = false;
+        setButtonState('EN', false);
       }
     } else {
       content.innerHTML = originalHTML;
       if (h1) h1.textContent = originalH1;
       if (desc) desc.textContent = originalDesc;
-      btn.textContent = 'EN';
+      setButtonState('EN', false);
       translated = false;
     }
-  });
+  }
+
+  btnDesktop?.addEventListener('click', handleTranslate);
+  btnMobile?.addEventListener('click', handleTranslate);
 </script>
 
 <style>
@@ -176,6 +183,31 @@ const { title, description, pubDate, updatedDate } = Astro.props;
     line-height: 1.6;
   }
 
+  .translate-btn-mobile {
+    display: none;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: rgba(232,232,232,0.5);
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.12);
+    padding: 0.25rem 0.6rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 1rem;
+  }
+
+  .translate-btn-mobile:hover {
+    border-color: #e03030;
+    color: #e03030;
+  }
+
+  .translate-btn-mobile:disabled {
+    opacity: 0.4;
+    cursor: wait;
+  }
+
   hr {
     border: none;
     border-top: 1px solid rgba(255,255,255,0.06);
@@ -187,8 +219,9 @@ const { title, description, pubDate, updatedDate } = Astro.props;
     line-height: 1.8;
   }
 
-  @media (max-width: 720px) {
+  @media (max-width: 640px) {
     article { padding: 2rem 1.25rem; }
     h1 { font-size: 1.6rem; }
+    .translate-btn-mobile { display: block; }
   }
 </style>
