@@ -24,7 +24,7 @@ o desde un dispositivo nuevo.
 ## Instalación con ProxMenux
 
 La instalación se hizo con ProxMenux, que despliega Authelia en un LXC dedicado 
-(LXC 105, IP 192.168.1.106) con la configuración base lista. Durante el proceso 
+(LXC 105, IP 192.168.1.105) con la configuración base lista. Durante el proceso 
 el script pide el dominio — hay que introducir `jelopez.link`, no `auth.jelopez.link`.
 
 ## Ajustes post-instalación

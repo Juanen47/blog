@@ -72,8 +72,8 @@ En resumen: NPMplus gestiona el SSL interno (LAN), Cloudflare gestiona el SSL ex
 
 | Dominio | Reenvía a | SSL |
 |---|---|---|
-| `wg.jelopez.link` | 192.168.1.101:10086 | Let's Encrypt / Cloudflare DNS |
-| `status.jelopez.link` | 192.168.1.102:3001 | Let's Encrypt / Cloudflare DNS |
+| `wg.jelopez.link` | 192.168.1.100:10086 | Let's Encrypt / Cloudflare DNS |
+| `status.jelopez.link` | 192.168.1.101:3001 | Let's Encrypt / Cloudflare DNS |
 
 ## Una regla importante
 

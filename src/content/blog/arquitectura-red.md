@@ -49,7 +49,7 @@ Desde dentro de la LAN el tráfico funciona de forma diferente. Los dispositivos
 
 - `wg.jelopez.link` → 192.168.1.103 (NPMplus)
 - `status.jelopez.link` → 192.168.1.103 (NPMplus)
-- `auth.jelopez.link` → 192.168.1.106 (Authelia directo)
+- `auth.jelopez.link` → 192.168.1.105 (Authelia directo)
 
 Así el tráfico interno nunca sale a Internet — va directamente a NPMplus, que termina el SSL y reenvía al servicio. Para los servicios de administración (Proxmox, AdGuard, NPMplus) el acceso es directamente por IP y puerto, sin pasar por ningún proxy.
 
@@ -147,7 +147,7 @@ Así el tráfico interno nunca sale a Internet — va directamente a NPMplus, qu
 
   <rect x="376" y="204" width="120" height="44" rx="6" class="box-amber" stroke-width="0.5"/>
   <text class="label" x="436" y="222" text-anchor="middle">cloudflared</text>
-  <text class="sublabel" x="436" y="238" text-anchor="middle">192.168.1.105</text>
+  <text class="sublabel" x="436" y="238" text-anchor="middle">192.168.1.104</text>
 
   <line x1="496" y1="226" x2="522" y2="226" class="arr" marker-end="url(#arrow)"/>
 
@@ -189,7 +189,7 @@ Así el tráfico interno nunca sale a Internet — va directamente a NPMplus, qu
 
   <rect x="421" y="416" width="200" height="40" rx="6" class="box-blue" stroke-width="0.5"/>
   <text class="label" x="521" y="432" text-anchor="middle">WireGuard LXC</text>
-  <text class="sublabel" x="521" y="448" text-anchor="middle">192.168.1.101 → acceso completo LAN</text>
+  <text class="sublabel" x="521" y="448" text-anchor="middle">192.168.1.100 → acceso completo LAN</text>
 
   <!-- FLUJO LAN -->
   <rect x="40" y="488" width="600" height="110" rx="10" class="zone"/>

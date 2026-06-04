@@ -21,7 +21,7 @@ de todos los servicios de un vistazo.
 ## Instalación
 
 Como el resto de servicios, la instalación se hizo con ProxMenux en un LXC dedicado 
-(LXC 101, IP 192.168.1.102).
+(LXC 101, IP 192.168.1.101).
 
 ## Monitores configurados
 
@@ -30,11 +30,11 @@ está vivo, y **HTTPS** para el único servicio expuesto externamente.
 
 | Monitor | Tipo | Host |
 |---|---|---|
-| AdGuard | Ping | 192.168.1.104 |
+| AdGuard | Ping | 192.168.1.102 |
 | NPMplus | Ping | 192.168.1.103 |
-| Cloudflared | Ping | 192.168.1.105 |
-| Authelia | Ping | 192.168.1.106 |
-| WireGuard | Ping | 192.168.1.101 |
+| Cloudflared | Ping | 192.168.1.104 |
+| Authelia | Ping | 192.168.1.105 |
+| WireGuard | Ping | 192.168.1.100 |
 | auth.jelopez.link | HTTPS | https://auth.jelopez.link |
 
 Proxmox y el propio Uptime Kuma no se monitorizan — si Proxmox cae, todo cae 

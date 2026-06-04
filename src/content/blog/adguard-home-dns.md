@@ -24,7 +24,7 @@ cualquier cosa conectada al WiFi — sin instalar nada en cada uno de ellos.
 
 Como el resto de servicios del homelab, la instalación se hizo con **ProxMenux**. 
 Un script automatizado que despliega AdGuard Home en un LXC dedicado (LXC 102, 
-IP 192.168.1.104) en pocos minutos. Sin configurar dependencias, sin tocar ficheros 
+IP 192.168.1.102) en pocos minutos. Sin configurar dependencias, sin tocar ficheros 
 de configuración a mano.
 
 Una vez instalado, el siguiente paso fue apuntar el DNS del router a la IP del LXC 
@@ -55,7 +55,7 @@ Esto permite acceder a los servicios internos por nombre en lugar de por IP:
 |---|---|---|
 | `wg.jelopez.link` | 192.168.1.103 | WireGuard Dashboard via NPMplus |
 | `status.jelopez.link` | 192.168.1.103 | Uptime Kuma via NPMplus |
-| `auth.jelopez.link` | 192.168.1.106 | Authelia |
+| `auth.jelopez.link` | 192.168.1.105 | Authelia |
 
 Cuando un dispositivo de la LAN accede a `wg.jelopez.link`, AdGuard devuelve la IP 
 de NPMplus directamente — el tráfico nunca sale a Internet, va directo al servicio local.
@@ -69,6 +69,6 @@ el filtrado para una IP específica sin afectar al resto de la red.
 ## Acceso
 
 AdGuard Home no está expuesto a Internet ni detrás de un proxy — se accede directamente 
-por IP desde la LAN: `http://192.168.1.104:3000`. Para administración interna es 
+por IP desde la LAN: `http://192.168.1.102:3000`. Para administración interna es 
 más que suficiente.
 

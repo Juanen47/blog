@@ -45,7 +45,7 @@ para Proxmox que automatiza el despliegue de servicios en contenedores LXC. En l
 de configurar WireGuard a mano — generar claves, editar ficheros de configuración,
 gestionar dependencias — el script lo hace todo en pocos minutos.
 
-El resultado es un LXC dedicado (LXC 100, IP 192.168.1.101) con WireGuard corriendo
+El resultado es un LXC dedicado (LXC 100, IP 192.168.1.100) con WireGuard corriendo
 como servicio y el dashboard de gestión accesible internamente.
 
 ## WG Dashboard
@@ -55,7 +55,7 @@ configuración. **WG Dashboard** es una interfaz web que simplifica esa gestión
 añadir y revocar clientes, ver conexiones activas, gestionar la configuración
 sin tocar la terminal.
 
-Accesible internamente via IP directa `http://192.168.1.101:10086` — el acceso por
+Accesible internamente via IP directa `http://192.168.1.100:10086` — el acceso por
 `wg.jelopez.link` se eliminó porque el registro A de ese subdominio lo usa el DDNS
 para el endpoint externo de WireGuard, y tenerlo también como reescritura DNS interna
 generaba conflictos.
@@ -109,7 +109,7 @@ Cuando me conecto desde fuera:
 1. Activo WireGuard en el dispositivo
 2. El cliente resuelve `wg.jelopez.link` — DDNS garantiza que siempre apunta a la IP actual
 3. El cliente conecta al router por UDP 51820
-4. El router reenvía al LXC de WireGuard (192.168.1.101)
+4. El router reenvía al LXC de WireGuard (192.168.1.100)
 5. Obtengo una IP dentro de la LAN — acceso completo a 192.168.1.0/24
 6. Puedo acceder a Proxmox, AdGuard, SSH a cualquier LXC, lo que necesite
 

@@ -44,7 +44,7 @@ Se crea el túnel, se le da un nombre (en este caso `Homelab`) y Cloudflare
 genera un token único para el conector.
 
 El conector es `cloudflared` — un daemon que corre en un LXC dedicado 
-(LXC 104, IP 192.168.1.105) y mantiene la conexión saliente hacia Cloudflare. 
+(LXC 104, IP 192.168.1.104) y mantiene la conexión saliente hacia Cloudflare. 
 La instalación en Debian 12 se hace añadiendo el repositorio oficial de Cloudflare:
 
 ```bash
@@ -67,7 +67,7 @@ se configuran las rutas — qué subdominio apunta a qué servicio interno:
 
 | Subdominio | Servicio interno | Notas |
 |---|---|---|
-| `auth.jelopez.link` | 192.168.1.106:9091 | Authelia — portal de autenticación |
+| `auth.jelopez.link` | 192.168.1.105:9091 | Authelia — portal de autenticación |
 
 Cloudflare crea automáticamente el registro DNS para cada ruta configurada. 
 Sin tocar el panel de DNS manualmente.
