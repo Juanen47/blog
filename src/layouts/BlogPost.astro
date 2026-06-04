@@ -86,7 +86,7 @@ const { title, description, pubDate, updatedDate } = Astro.props;
   async function translateChunk(texts: string[]): Promise<string[]> {
     const joined = texts.join('\n||||\n');
     const res = await fetch(
-      `https://api.mymemory.translated.net/get?q=${encodeURIComponent(joined)}&langpair=es|en`
+      `https://api.mymemory.translated.net/get?q=${encodeURIComponent(joined)}&langpair=es|en&de=juanenlopez1459@gmail.com`
     );
     const data = await res.json();
     const result = data.responseData.translatedText as string;
