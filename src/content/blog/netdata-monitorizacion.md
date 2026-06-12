@@ -102,22 +102,20 @@ http://192.168.1.101:3001/api/push/XXXXXXXXXX?status=up&msg=OK&ping=
 
 ### Configurar las notificaciones en Netdata
 
-En cada nodo que queremos que envíe alertas, crear el fichero de notificaciones:
+En cada nodo que queremos que envíe alertas, crear el fichero de notificaciones.
+
+> **Nota (Netdata v2.x):** En versiones v2.x la función `custom_sender()` no recibe parámetros posicionales — `status` y `alarm` son variables globales que el script ya tiene definidas. Usar `${1}`, `${2}`, `${3}` hace que la función falle silenciosamente. Además, evitar usar `${alarm}` directamente en la URL del curl — los espacios y caracteres especiales en el mensaje rompen la petición.
 
 ```bash
 cat > /etc/netdata/health_alarm_notify.conf << 'EOF'
 SEND_CUSTOM=YES
-DEFAULT_RECIPIENT_CUSTOM="http://192.168.1.101:3001/api/push/XXXXXXXXXX?status=up&msg=OK&ping="
+DEFAULT_RECIPIENT_CUSTOM="uptime_kuma"
 
 custom_sender() {
-    local status="${1}"
-    local alarm="${2}"
-    local info="${3}"
-
     if [ "${status}" = "CRITICAL" ] || [ "${status}" = "WARNING" ]; then
-        curl -s "http://192.168.1.101:3001/api/push/XXXXXXXXXX?status=down&msg=${alarm}&ping=" > /dev/null
+        curl -s "http://192.168.1.101:3001/api/push/XXXXXXXXXX?status=down&msg=DOWN&ping=" > /dev/null 2>&1
     else
-        curl -s "http://192.168.1.101:3001/api/push/XXXXXXXXXX?status=up&msg=OK&ping=" > /dev/null
+        curl -s "http://192.168.1.101:3001/api/push/XXXXXXXXXX?status=up&msg=OK&ping=" > /dev/null 2>&1
     fi
 }
 EOF
