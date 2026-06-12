@@ -1,6 +1,7 @@
 ---
 import type { CollectionEntry } from 'astro:content';
 import BaseHead from '../components/BaseHead.astro';
+import Comments from '../components/Comments.astro';
 import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import Header from '../components/Header.astro';
@@ -34,6 +35,7 @@ const { title, description, pubDate, updatedDate } = Astro.props;
           <slot />
         </div>
       </article>
+      <Comments />
     </main>
     <Footer />
   </body>
