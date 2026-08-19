@@ -1,6 +1,6 @@
 ---
 title: "Hardening del homelab: auditando y securizando servicios expuestos a internet con Lynis"
-date: 2026-08-19
+pubDate: 2026-08-19
 description: "Cómo audité con Lynis los LXCs expuestos de mi homelab en Proxmox, qué medidas apliqué en cada uno y cuánto mejoró el índice de seguridad. Guía práctica con comandos reales."
 tags: ["seguridad", "proxmox", "lynis", "hardening", "linux", "homelab"]
 draft: false
