@@ -42,7 +42,6 @@ const toc = headings.filter((h) => h.depth === 2 || h.depth === 3);
                 {tags.map((tag: string) => <span class="tag">{tag}</span>)}
               </div>
             )}
-            <button id="translate-btn-mobile" class="translate-btn-mobile">EN</button>
             <hr />
           </div>
           <div class="prose" id="post-content">
@@ -113,112 +112,6 @@ const toc = headings.filter((h) => h.depth === 2 || h.depth === 3);
       btn.textContent = 'Error';
     }
   });
-
-  const btnDesktop = document.getElementById('translate-btn') as HTMLButtonElement;
-  const btnMobile = document.getElementById('translate-btn-mobile') as HTMLButtonElement;
-  const content = document.getElementById('post-content');
-
-  let translated = false;
-  let originalHTML = '';
-  let originalH1 = '';
-  let originalDesc = '';
-
-  function setButtonState(text: string, disabled: boolean) {
-    if (btnDesktop) { btnDesktop.textContent = text; btnDesktop.disabled = disabled; }
-    if (btnMobile) { btnMobile.textContent = text; btnMobile.disabled = disabled; }
-  }
-
-  function extractTextNodes(root: Node): Text[] {
-    const nodes: Text[] = [];
-    const skip = ['CODE', 'PRE', 'SVG', 'SCRIPT', 'STYLE'];
-
-    function walk(node: Node) {
-      if (node.nodeType === Node.TEXT_NODE) {
-        const text = node.textContent?.trim();
-        if (text && text.length > 2) nodes.push(node as Text);
-      } else if (node.nodeType === Node.ELEMENT_NODE) {
-        if (skip.includes((node as Element).tagName)) return;
-        for (const child of Array.from(node.childNodes)) walk(child);
-      }
-    }
-    walk(root);
-    return nodes;
-  }
-
-  function chunkText(texts: string[], maxLen = 300): string[][] {
-    const chunks: string[][] = [];
-    let current: string[] = [];
-    let currentLen = 0;
-
-    for (const text of texts) {
-      if (currentLen + text.length > maxLen) {
-        if (current.length) chunks.push(current);
-        current = [text];
-        currentLen = text.length;
-      } else {
-        current.push(text);
-        currentLen += text.length;
-      }
-    }
-    if (current.length) chunks.push(current);
-    return chunks;
-  }
-
-  async function translateChunk(texts: string[]): Promise<string[]> {
-    const joined = texts.join('\n||||\n');
-    const res = await fetch(
-      `https://api.mymemory.translated.net/get?q=${encodeURIComponent(joined)}&langpair=es|en&de=juanenlopez1459@gmail.com`
-    );
-    const data = await res.json();
-    const result = data.responseData.translatedText as string;
-    return result.split('\n||||\n');
-  }
-
-  async function handleTranslate() {
-    if (!content) return;
-
-    const h1 = document.querySelector('h1');
-    const desc = document.querySelector('.post-description');
-
-    if (!translated) {
-      setButtonState('...', true);
-
-      originalHTML = content.innerHTML;
-      originalH1 = h1?.textContent || '';
-      originalDesc = desc?.textContent || '';
-
-      try {
-        const areas = [h1, desc, content].filter(Boolean) as Node[];
-        const nodes = areas.flatMap(el => extractTextNodes(el));
-        const texts = nodes.map(n => n.textContent || '');
-        const chunks = chunkText(texts);
-
-        const results = await Promise.all(chunks.map(translateChunk));
-        const flat = results.flat();
-
-        nodes.forEach((node, i) => {
-          if (flat[i]) node.textContent = flat[i];
-        });
-
-        setButtonState('ES', false);
-        translated = true;
-      } catch {
-        content.innerHTML = originalHTML;
-        if (h1) h1.textContent = originalH1;
-        if (desc) desc.textContent = originalDesc;
-        setButtonState('EN', false);
-      }
-    } else {
-      content.innerHTML = originalHTML;
-      if (h1) h1.textContent = originalH1;
-      if (desc) desc.textContent = originalDesc;
-      setButtonState('EN', false);
-      translated = false;
-    }
-  }
-
-  btnDesktop?.addEventListener('click', handleTranslate);
-  btnMobile?.addEventListener('click', handleTranslate);
 </script>
 
 <style>
@@ -283,22 +176,6 @@ const toc = headings.filter((h) => h.depth === 2 || h.depth === 3);
     padding: 0.1rem 0.6rem;
   }
 
-  .translate-btn-mobile {
-    display: none;
-    font-family: var(--font-mono);
-    font-size: 0.72rem;
-    font-weight: 600;
-    color: var(--text-muted);
-    background: transparent;
-    border: 1px solid var(--border-strong);
-    border-radius: 6px;
-    padding: 0.25rem 0.6rem;
-    cursor: pointer;
-    margin-top: 1rem;
-  }
-
-  .translate-btn-mobile:hover { border-color: var(--accent); color: var(--accent); }
-  .translate-btn-mobile:disabled { opacity: 0.4; cursor: wait; }
 
   hr { margin: 1.75rem 0 2rem; }
 
@@ -343,6 +220,5 @@ const toc = headings.filter((h) => h.depth === 2 || h.depth === 3);
 
   @media (max-width: 640px) {
     h1 { font-size: 1.7rem; }
-    .translate-btn-mobile { display: block; }
   }
 </style>
