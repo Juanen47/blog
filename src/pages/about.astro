@@ -16,7 +16,7 @@ import Header from '../components/Header.astro';
         <h1>Sobre mí</h1>
 
         <h2>Hola, soy Juanen</h2>
-        <p>Tengo 25 años, soy Técnico Superior en ASIR y en Ciberseguridad y trabajo en administración de sistemas e infraestructura IT con foco en seguridad.</p>
+        <p>Tengo 26 años, soy Técnico Superior en ASIR y en Ciberseguridad y trabajo en administración de sistemas e infraestructura IT con foco en seguridad.</p>
 
         <h2>El camino hasta aquí</h2>
         <p>Mi trayectoria no fue exactamente en línea recta. Empecé la universidad — primero Criminología, luego Economía — y aunque aprendí cosas por el camino, en ningún momento sentí que estaba donde quería estar. Cuando hice cuentas y vi que me quedaban dos años largos para terminar, tomé la decisión que tendría que haber tomado antes: hacer lo que siempre había querido desde pequeño.</p>
@@ -24,6 +24,9 @@ import Header from '../components/Header.astro';
 
         <h2>Experiencia</h2>
         <p>He trabajado en normalización y limpieza de bases de datos, y actualmente me dedico a la administración de sistemas e infraestructura, con tareas que van desde la gestión de servidores y redes hasta la seguridad del entorno.</p>
+
+        <h2>Mi homelab</h2>
+        <p>Fuera del trabajo mantengo un homelab sobre un Intel NUC (N150, 16 GB de RAM) con Proxmox VE. Todos los servicios corren en contenedores LXC: WireGuard para el acceso remoto, AdGuard Home como DNS interno, NPMplus como reverse proxy y Authelia con MFA. El acceso desde Internet va exclusivamente por Cloudflare Tunnel, así que no hay puertos web abiertos en el router. Lo monitorizo con Uptime Kuma y Netdata, con alertas a Telegram, y periódicamente lo audito con Lynis. Todo está documentado en <a href="/blog">el blog</a>.</p>
 
         <h2>Qué me interesa aprender</h2>
         <p>El sector no para y yo tampoco quiero hacerlo. Ahora mismo tengo el foco puesto en:</p>
