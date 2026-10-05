@@ -7,6 +7,9 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineConfig({
   site: 'https://blog.jelopez.link',
   integrations: [mdx(), sitemap()],
+  markdown: {
+    shikiConfig: { theme: 'github-dark-dimmed', wrap: false },
+  },
   vite: {
     plugins: [tailwindcss()],
   },

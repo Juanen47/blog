@@ -4,10 +4,11 @@ const today = new Date();
 
 <footer>
   <div class="footer-links">
-    <a href="https://github.com/Juanen47" target="_blank">GitHub</a>
+    <a href="https://github.com/Juanen47" target="_blank" rel="noopener">GitHub</a>
     <a href="mailto:juanenlopez1459@gmail.com">Email</a>
-    <a href="https://www.linkedin.com/in/juan-enrique-l%C3%B3pez-monteagudo-2063ab305/" target="_blank">LinkedIn</a>
-    <a href="https://jelopez.link" target="_blank">jelopez.link</a>
+    <a href="https://www.linkedin.com/in/juan-enrique-l%C3%B3pez-monteagudo-2063ab305/" target="_blank" rel="noopener">LinkedIn</a>
+    <a href="https://jelopez.link" target="_blank" rel="noopener">jelopez.link</a>
+    <a href="/rss.xml">RSS</a>
   </div>
   <p>© {today.getFullYear()} Juan Enrique López Monteagudo</p>
 </footer>
@@ -15,9 +16,8 @@ const today = new Date();
 <style>
   footer {
     padding: 2.5rem 2rem;
-    border-top: 1px solid rgba(255,255,255,0.06);
+    border-top: 1px solid var(--border);
     text-align: center;
-    background: transparent;
   }
 
   .footer-links {
@@ -29,20 +29,18 @@ const today = new Date();
   }
 
   .footer-links a {
-    font-family: 'Space Mono', monospace;
-    font-size: 0.7rem;
-    color: rgba(232,232,232,0.35);
+    font-size: 0.82rem;
+    color: var(--text-muted);
     text-decoration: none;
-    letter-spacing: 0.05em;
     transition: color 0.2s;
   }
 
-  .footer-links a:hover { color: #e03030; }
+  .footer-links a:hover { color: var(--accent); }
 
   p {
-    font-family: 'Space Mono', monospace;
-    font-size: 0.7rem;
-    color: rgba(232,232,232,0.2);
-    letter-spacing: 0.05em;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    opacity: 0.8;
+    margin: 0;
   }
 </style>

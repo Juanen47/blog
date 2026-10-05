@@ -2,6 +2,7 @@
 import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
+import PostList from '../components/PostList.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 import { getCollection } from 'astro:content';
 
@@ -17,126 +18,78 @@ const posts = (await getCollection('blog'))
   </head>
   <body>
     <Header />
-    <main>
-      <div class="blog-header">
-        <h1>Blog</h1>
-        <p>Documentación técnica del homelab — Proxmox, networking, servicios self-hosted y seguridad.</p>
-      </div>
-      <ul class="post-list">
-        {posts.map(post => (
-          <li>
-            <a href={`/blog/${post.id}/`}>
-              <div class="post-meta">
-                <time datetime={post.data.pubDate.toISOString()}>
-                  {post.data.pubDate.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })}
-                </time>
-                {post.data.tags && (
-                  <div class="tags">
-                    {post.data.tags.slice(0, 3).map((tag: string) => (
-                      <span class="tag">{tag}</span>
-                    ))}
-                  </div>
-                )}
-              </div>
-              <h2>{post.data.title}</h2>
-              <p>{post.data.description}</p>
-            </a>
-          </li>
-        ))}
-      </ul>
+    <main id="main">
+      <section class="hero">
+        <p class="eyebrow">Homelab · Self-hosting · Seguridad</p>
+        <h1>Documentando mi <span>homelab</span>, paso a paso.</h1>
+        <p class="lead">Proxmox, networking, servicios self-hosted y hardening. Lo que aprendo, tal como lo monto.</p>
+        <div class="hero-actions">
+          <a class="btn primary" href="/blog">Ver todos los artículos</a>
+          <a class="btn" href="/about">Sobre mí</a>
+        </div>
+      </section>
+
+      <h2 class="section-title">Últimos artículos</h2>
+      <PostList posts={posts.slice(0, 5)} />
+      {posts.length > 5 && <a class="more" href="/blog">Ver los {posts.length} artículos →</a>}
     </main>
     <Footer />
   </body>
 </html>
 
 <style>
-  .blog-header {
-    margin-bottom: 3rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
-  }
+  .hero { padding: 3rem 0 3.5rem; }
 
-  .blog-header h1 {
-    font-size: 2rem;
-    font-weight: 800;
-    margin-bottom: 0.5rem;
-  }
-
-  .blog-header p {
-    font-size: 0.85rem;
-    color: rgba(232,232,232,0.4);
-    margin: 0;
-  }
-
-  .post-list {
-    list-style: none;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-  }
-
-  .post-list li {
-    border-bottom: 1px solid rgba(255,255,255,0.06);
-  }
-
-  .post-list li a {
-    display: block;
-    padding: 1.75rem 0;
-    text-decoration: none;
-    color: inherit;
-    transition: background 0.2s;
-  }
-
-  .post-list li a:hover h2 {
-    color: #e03030;
-  }
-
-  .post-meta {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 0.5rem;
-    flex-wrap: wrap;
-  }
-
-  time {
-    font-size: 0.72rem;
-    color: rgba(232,232,232,0.35);
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
     letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1rem;
   }
 
-  .tags {
-    display: flex;
-    gap: 0.4rem;
-    flex-wrap: wrap;
+  .hero h1 {
+    font-size: clamp(2.1rem, 6vw, 3.4rem);
+    font-weight: 800;
+    line-height: 1.08;
+    margin-bottom: 1.25rem;
   }
 
-  .tag {
-    font-size: 0.65rem;
-    font-family: 'Space Mono', monospace;
-    color: rgba(232,232,232,0.35);
-    border: 1px solid rgba(255,255,255,0.08);
-    padding: 0.1rem 0.45rem;
-    letter-spacing: 0.05em;
-  }
+  .hero h1 span { color: var(--accent); }
 
-  .post-list h2 {
+  .lead {
     font-size: 1.1rem;
-    font-weight: 700;
-    margin: 0 0 0.4rem;
-    transition: color 0.2s;
-    color: #e8e8e8;
+    max-width: 560px;
+    color: var(--text-muted);
+    margin-bottom: 1.75rem;
   }
 
-  .post-list p {
-    font-size: 0.82rem;
-    color: rgba(232,232,232,0.45);
-    margin: 0;
-    line-height: 1.6;
+  .hero-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+
+  .btn {
+    padding: 0.6rem 1.2rem;
+    border-radius: 999px;
+    border: 1px solid var(--border-strong);
+    color: var(--text);
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: border-color 0.2s, background 0.2s;
   }
 
-  @media (max-width: 720px) {
-    .post-list li a { padding: 1.25rem 0; }
+  .btn:hover { text-decoration: none; border-color: var(--accent); background: var(--accent-soft); }
+
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.primary:hover { background: var(--accent); filter: brightness(1.1); }
+
+  .section-title {
+    font-size: 0.85rem;
+    font-family: var(--font-mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin: 0 0 1rem;
   }
+
+  .more { display: inline-block; margin-top: 1.5rem; font-size: 0.92rem; }
 </style>

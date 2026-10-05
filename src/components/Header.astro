@@ -2,6 +2,7 @@
 import HeaderLink from './HeaderLink.astro';
 ---
 
+<a href="#main" class="skip-link">Saltar al contenido</a>
 <header>
   <nav>
     <a href="https://jelopez.link" class="logo">JELOPEZ<span>.</span>LINK</a>
@@ -17,9 +18,10 @@ import HeaderLink from './HeaderLink.astro';
   header {
     margin: 0;
     padding: 0 2rem;
-    background: rgba(8,8,8,0.8);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(255,255,255,0.06);
+    background: rgba(11, 11, 13, 0.72);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    border-bottom: 1px solid var(--border);
     position: sticky;
     top: 0;
     z-index: 100;
@@ -35,15 +37,16 @@ import HeaderLink from './HeaderLink.astro';
   }
 
   .logo {
-    font-family: 'Syne', sans-serif;
+    font-family: var(--font-heading);
     font-weight: 800;
     font-size: 1rem;
     letter-spacing: 0.15em;
-    color: #e8e8e8;
+    color: var(--text);
     text-decoration: none;
   }
 
-  .logo span { color: #e03030; }
+  .logo:hover { text-decoration: none; }
+  .logo span { color: var(--accent); }
 
   .nav-links {
     display: flex;
@@ -51,37 +54,23 @@ import HeaderLink from './HeaderLink.astro';
     align-items: center;
   }
 
-  .nav-links a {
-    font-family: 'Space Mono', monospace;
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: rgba(232,232,232,0.5);
-    text-decoration: none;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    transition: color 0.2s;
-    border-bottom: none;
-    padding: 0;
-  }
-
-  .nav-links a:hover { color: #e03030; }
-
   .translate-btn {
-    font-family: 'Space Mono', monospace;
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    color: rgba(232,232,232,0.5);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
     background: transparent;
-    border: 1px solid rgba(255,255,255,0.12);
+    border: 1px solid var(--border-strong);
+    border-radius: 6px;
     padding: 0.25rem 0.6rem;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: color 0.2s, border-color 0.2s;
   }
 
   .translate-btn:hover {
-    border-color: #e03030;
-    color: #e03030;
+    border-color: var(--accent);
+    color: var(--accent);
   }
 
   .translate-btn:disabled {
@@ -90,8 +79,8 @@ import HeaderLink from './HeaderLink.astro';
   }
 
   @media (max-width: 640px) {
-    nav { padding: 0 1.25rem; }
-    .nav-links { gap: 0.75rem; }
+    header { padding: 0 1.25rem; }
+    .nav-links { gap: 1rem; }
     .translate-btn { display: none; }
   }
 </style>

@@ -1,0 +1,126 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { readingTime } from '../utils';
+
+interface Props {
+  posts: CollectionEntry<'blog'>[];
+}
+
+const { posts } = Astro.props;
+---
+
+<ul class="post-list">
+  {posts.map((post) => (
+    <li>
+      <a href={`/blog/${post.id}/`} class="card">
+        <div class="post-meta">
+          <time datetime={post.data.pubDate.toISOString()}>
+            {post.data.pubDate.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })}
+          </time>
+          <span class="dot" aria-hidden="true">·</span>
+          <span>{readingTime(post.body)} min de lectura</span>
+        </div>
+        <h2>{post.data.title}</h2>
+        <p>{post.data.description}</p>
+        <div class="card-footer">
+          {post.data.tags && (
+            <div class="tags">
+              {post.data.tags.slice(0, 3).map((tag: string) => (
+                <span class="tag">{tag}</span>
+              ))}
+            </div>
+          )}
+          <span class="arrow" aria-hidden="true">→</span>
+        </div>
+      </a>
+    </li>
+  ))}
+</ul>
+
+<style>
+  .post-list {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 1rem;
+  }
+
+  .post-list li { margin: 0; }
+
+  .card {
+    display: block;
+    padding: 1.5rem 1.6rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    color: inherit;
+    text-decoration: none;
+    transition: border-color 0.2s, background 0.2s, transform 0.2s, box-shadow 0.2s;
+  }
+
+  .card:hover {
+    text-decoration: none;
+    background: var(--surface-hover);
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px -12px var(--accent-glow);
+  }
+
+  .post-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.6rem;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem;
+    transition: color 0.2s;
+  }
+
+  .card:hover h2 { color: var(--accent); }
+
+  p {
+    font-size: 0.92rem;
+    color: var(--text-muted);
+    margin: 0 0 1rem;
+    line-height: 1.6;
+  }
+
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .tags { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+
+  .tag {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    background: var(--surface-hover);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0.1rem 0.6rem;
+  }
+
+  .arrow {
+    color: var(--accent);
+    opacity: 0;
+    transform: translateX(-6px);
+    transition: opacity 0.2s, transform 0.2s;
+  }
+
+  .card:hover .arrow { opacity: 1; transform: translateX(0); }
+
+  @media (max-width: 720px) {
+    .card { padding: 1.2rem; }
+    .arrow { opacity: 1; transform: none; }
+  }
+</style>

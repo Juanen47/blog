@@ -3,6 +3,7 @@ import { getCollection } from 'astro:content';
 import BaseHead from '../../components/BaseHead.astro';
 import Footer from '../../components/Footer.astro';
 import Header from '../../components/Header.astro';
+import PostList from '../../components/PostList.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
 
 const posts = (await getCollection('blog'))
@@ -17,118 +18,28 @@ const posts = (await getCollection('blog'))
   </head>
   <body>
     <Header />
-    <main>
+    <main id="main">
       <div class="blog-header">
         <h1>Blog</h1>
         <p>Documentación técnica del homelab — Proxmox, networking, servicios self-hosted y seguridad.</p>
       </div>
-      <ul class="post-list">
-        {posts.map(post => (
-          <li>
-            <a href={`/blog/${post.id}/`}>
-              <div class="post-meta">
-                <time datetime={post.data.pubDate.toISOString()}>
-                  {post.data.pubDate.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })}
-                </time>
-                {post.data.tags && (
-                  <div class="tags">
-                    {post.data.tags.slice(0, 3).map((tag: string) => (
-                      <span class="tag">{tag}</span>
-                    ))}
-                  </div>
-                )}
-              </div>
-              <h2>{post.data.title}</h2>
-              <p>{post.data.description}</p>
-            </a>
-          </li>
-        ))}
-      </ul>
+      <PostList posts={posts} />
     </main>
     <Footer />
   </body>
 </html>
 
 <style>
-  .blog-header {
-    margin-bottom: 3rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
-  }
+  .blog-header { margin-bottom: 2.5rem; }
 
   .blog-header h1 {
-    font-size: 2rem;
+    font-size: 2.2rem;
     font-weight: 800;
     margin-bottom: 0.5rem;
   }
 
   .blog-header p {
-    font-size: 0.85rem;
-    color: rgba(232,232,232,0.4);
+    color: var(--text-muted);
     margin: 0;
-  }
-
-  .post-list {
-    list-style: none;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .post-list li {
-    border-bottom: 1px solid rgba(255,255,255,0.06);
-  }
-
-  .post-list li a {
-    display: block;
-    padding: 1.75rem 0;
-    text-decoration: none;
-    color: inherit;
-  }
-
-  .post-list li a:hover h2 { color: #e03030; }
-
-  .post-meta {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 0.5rem;
-    flex-wrap: wrap;
-  }
-
-  time {
-    font-size: 0.72rem;
-    color: rgba(232,232,232,0.35);
-    letter-spacing: 0.08em;
-  }
-
-  .tags { display: flex; gap: 0.4rem; flex-wrap: wrap; }
-
-  .tag {
-    font-size: 0.65rem;
-    font-family: 'Space Mono', monospace;
-    color: rgba(232,232,232,0.35);
-    border: 1px solid rgba(255,255,255,0.08);
-    padding: 0.1rem 0.45rem;
-    letter-spacing: 0.05em;
-  }
-
-  .post-list h2 {
-    font-size: 1.1rem;
-    font-weight: 700;
-    margin: 0 0 0.4rem;
-    transition: color 0.2s;
-    color: #e8e8e8;
-  }
-
-  .post-list p {
-    font-size: 0.82rem;
-    color: rgba(232,232,232,0.45);
-    margin: 0;
-    line-height: 1.6;
-  }
-
-  @media (max-width: 720px) {
-    .post-list li a { padding: 1.25rem 0; }
   }
 </style>

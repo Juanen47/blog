@@ -1,47 +1,119 @@
 ---
 import type { CollectionEntry } from 'astro:content';
+import type { MarkdownHeading } from 'astro';
 import BaseHead from '../components/BaseHead.astro';
 import Comments from '../components/Comments.astro';
 import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import Header from '../components/Header.astro';
 
-type Props = CollectionEntry<'blog'>['data'];
+type Props = CollectionEntry<'blog'>['data'] & {
+  headings?: MarkdownHeading[];
+  readingTime?: number;
+};
 
-const { title, description, pubDate, updatedDate } = Astro.props;
+const { title, description, pubDate, updatedDate, tags, headings = [], readingTime } = Astro.props;
+const toc = headings.filter((h) => h.depth === 2 || h.depth === 3);
 ---
 
+<!doctype html>
 <html lang="es">
   <head>
     <BaseHead title={title} description={description} />
   </head>
   <body>
+    <div class="progress" id="progress" aria-hidden="true"></div>
     <Header />
-    <main>
-      <article>
-        <div class="post-header">
-          <div class="post-date">
-            <FormattedDate date={pubDate} />
-            {updatedDate && (
-              <span class="updated">· Actualizado: <FormattedDate date={updatedDate} /></span>
+    <main id="main">
+      <div class="post-layout">
+        <article>
+          <div class="post-header">
+            <div class="post-date">
+              <FormattedDate date={pubDate} />
+              {updatedDate && (
+                <span class="updated">· Actualizado: <FormattedDate date={updatedDate} /></span>
+              )}
+              {readingTime && <span>· {readingTime} min de lectura</span>}
+            </div>
+            <h1>{title}</h1>
+            <p class="post-description">{description}</p>
+            {tags && (
+              <div class="tags">
+                {tags.map((tag: string) => <span class="tag">{tag}</span>)}
+              </div>
             )}
+            <button id="translate-btn-mobile" class="translate-btn-mobile">EN</button>
+            <hr />
           </div>
-          <h1>{title}</h1>
-          <p class="post-description">{description}</p>
-          <button id="translate-btn-mobile" class="translate-btn-mobile">EN</button>
-          <hr />
-        </div>
-        <div class="prose" id="post-content">
-          <slot />
-        </div>
-      </article>
-      <Comments />
+          <div class="prose" id="post-content">
+            <slot />
+          </div>
+          <Comments />
+        </article>
+        {toc.length > 2 && (
+          <aside class="toc" aria-label="Tabla de contenidos">
+            <p class="toc-title">En esta página</p>
+            <ul>
+              {toc.map((h) => (
+                <li class={h.depth === 3 ? 'sub' : undefined}>
+                  <a href={`#${h.slug}`}>{h.text}</a>
+                </li>
+              ))}
+            </ul>
+          </aside>
+        )}
+      </div>
     </main>
     <Footer />
   </body>
 </html>
 
 <script>
+  // Barra de progreso de lectura
+  const bar = document.getElementById('progress');
+  function updateProgress() {
+    if (!bar) return;
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    bar.style.transform = `scaleX(${max > 0 ? Math.min(1, window.scrollY / max) : 0})`;
+  }
+  window.addEventListener('scroll', updateProgress, { passive: true });
+  updateProgress();
+
+  // Enlaces ancla en h2/h3 y botón "copiar" en los bloques de código
+  document.querySelectorAll<HTMLElement>('#post-content :is(h2, h3)[id]').forEach((h) => {
+    const a = document.createElement('a');
+    a.href = `#${h.id}`;
+    a.className = 'heading-anchor';
+    a.textContent = '#';
+    a.setAttribute('aria-label', 'Enlace a esta sección');
+    h.prepend(a);
+  });
+
+  document.querySelectorAll<HTMLElement>('#post-content pre').forEach((pre) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'copy-btn';
+    btn.textContent = 'Copiar';
+    pre.appendChild(btn);
+  });
+
+  document.addEventListener('click', async (e) => {
+    const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('.copy-btn');
+    if (!btn) return;
+    const code = btn.parentElement?.querySelector('code')?.innerText ?? '';
+    try {
+      await navigator.clipboard.writeText(code);
+      btn.textContent = 'Copiado';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = 'Copiar';
+        btn.classList.remove('copied');
+      }, 1800);
+    } catch {
+      btn.textContent = 'Error';
+    }
+  });
+
   const btnDesktop = document.getElementById('translate-btn') as HTMLButtonElement;
   const btnMobile = document.getElementById('translate-btn-mobile') as HTMLButtonElement;
   const content = document.getElementById('post-content');
@@ -150,80 +222,127 @@ const { title, description, pubDate, updatedDate } = Astro.props;
 </script>
 
 <style>
-  article {
-    max-width: 720px;
-    margin: 0 auto;
-    padding: 3rem 2rem;
+  main {
+    max-width: 1080px;
   }
 
-  .post-header {
-    margin-bottom: 2rem;
+  .progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    z-index: 300;
   }
+
+  .post-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 720px) 220px;
+    gap: 3.5rem;
+    justify-content: center;
+  }
+
+  article { min-width: 0; }
+
+  .post-header { margin-bottom: 2rem; }
 
   .post-date {
-    font-size: 0.75rem;
-    color: rgba(232,232,232,0.4);
-    letter-spacing: 0.1em;
+    font-size: 0.82rem;
+    color: var(--text-muted);
     margin-bottom: 1rem;
   }
 
-  .updated {
-    font-style: italic;
-  }
+  .post-date time { font-family: var(--font-mono); }
 
   h1 {
-    font-size: 2.2rem;
+    font-size: 2.4rem;
     font-weight: 800;
     margin-bottom: 0.75rem;
     line-height: 1.1;
   }
 
   .post-description {
-    font-size: 0.95rem;
-    color: rgba(232,232,232,0.5);
-    margin-bottom: 1.5rem;
+    font-size: 1.05rem;
+    color: var(--text-muted);
+    margin-bottom: 1.25rem;
     line-height: 1.6;
+  }
+
+  .tags { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+
+  .tag {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    background: var(--surface-hover);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0.1rem 0.6rem;
   }
 
   .translate-btn-mobile {
     display: none;
-    font-family: 'Space Mono', monospace;
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    color: rgba(232,232,232,0.5);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-muted);
     background: transparent;
-    border: 1px solid rgba(255,255,255,0.12);
+    border: 1px solid var(--border-strong);
+    border-radius: 6px;
     padding: 0.25rem 0.6rem;
     cursor: pointer;
-    transition: all 0.2s;
-    margin-bottom: 1rem;
+    margin-top: 1rem;
   }
 
-  .translate-btn-mobile:hover {
-    border-color: #e03030;
-    color: #e03030;
+  .translate-btn-mobile:hover { border-color: var(--accent); color: var(--accent); }
+  .translate-btn-mobile:disabled { opacity: 0.4; cursor: wait; }
+
+  hr { margin: 1.75rem 0 2rem; }
+
+  .prose { font-size: 1rem; line-height: 1.8; }
+
+  /* Tabla de contenidos */
+  .toc {
+    position: sticky;
+    top: 5.5rem;
+    align-self: start;
+    max-height: calc(100vh - 7rem);
+    overflow-y: auto;
+    font-size: 0.82rem;
   }
 
-  .translate-btn-mobile:disabled {
-    opacity: 0.4;
-    cursor: wait;
+  .toc-title {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
   }
 
-  hr {
-    border: none;
-    border-top: 1px solid rgba(255,255,255,0.06);
-    margin: 1.5rem 0 2rem;
+  .toc ul {
+    list-style: none;
+    padding: 0 0 0 0.9rem;
+    margin: 0;
+    border-left: 1px solid var(--border);
   }
 
-  .prose {
-    font-size: 0.95rem;
-    line-height: 1.8;
+  .toc li { margin: 0 0 0.45rem; line-height: 1.4; }
+  .toc li.sub { padding-left: 0.8rem; }
+
+  .toc a { color: var(--text-muted); transition: color 0.15s; }
+  .toc a:hover { color: var(--accent); text-decoration: none; }
+
+  @media (max-width: 1100px) {
+    .post-layout { grid-template-columns: minmax(0, 720px); }
+    .toc { display: none; }
   }
 
   @media (max-width: 640px) {
-    article { padding: 2rem 1.25rem; }
-    h1 { font-size: 1.6rem; }
+    h1 { font-size: 1.7rem; }
     .translate-btn-mobile { display: block; }
   }
 </style>
