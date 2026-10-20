@@ -1,16 +1,22 @@
 ---
+import { SITE } from '../consts';
+
 const today = new Date();
 ---
 
 <footer>
   <div class="footer-links">
-    <a href="https://github.com/Juanen47" target="_blank" rel="noopener">GitHub</a>
-    <a href="mailto:juanenlopez1459@gmail.com">Email</a>
-    <a href="https://www.linkedin.com/in/juan-enrique-l%C3%B3pez-monteagudo-2063ab305/" target="_blank" rel="noopener">LinkedIn</a>
-    <a href="https://jelopez.link" target="_blank" rel="noopener">jelopez.link</a>
+    <a href={SITE.github} rel="me noopener">GitHub</a>
+    <a href={SITE.linkedin} rel="me noopener">LinkedIn</a>
+    <a href={SITE.web} rel="me">jelopez.link</a>
+    <a href={`mailto:${SITE.email}`}>Email</a>
     <a href="/rss.xml">RSS</a>
   </div>
-  <p>© {today.getFullYear()} Juan Enrique López Monteagudo</p>
+  <div class="footer-links footer-meta">
+    <a href="/etiquetas/">Etiquetas</a>
+    <a href="/privacidad/">Privacidad y cookies</a>
+  </div>
+  <p>© {today.getFullYear()} {SITE.author}</p>
 </footer>
 
 <style>
@@ -36,6 +42,8 @@ const today = new Date();
   }
 
   .footer-links a:hover { color: var(--accent); }
+
+  .footer-meta a { font-size: 0.76rem; }
 
   p {
     font-size: 0.78rem;

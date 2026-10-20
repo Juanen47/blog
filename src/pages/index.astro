@@ -3,18 +3,34 @@ import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
 import PostList from '../components/PostList.astro';
-import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
-import { getCollection } from 'astro:content';
+import { AUTHOR_LD, SITE, SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import { countTags, getPosts } from '../utils';
 
-const posts = (await getCollection('blog'))
-  .filter(post => post.id !== 'sobre-mi')
-  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+const posts = await getPosts();
+const tags = countTags(posts).slice(0, 12);
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Blog',
+  '@id': `${SITE.url}/#blog`,
+  name: SITE.name,
+  url: `${SITE.url}/`,
+  description: SITE_DESCRIPTION,
+  inLanguage: 'es-ES',
+  author: AUTHOR_LD,
+  blogPost: posts.slice(0, 10).map((p) => ({
+    '@type': 'BlogPosting',
+    headline: p.data.title,
+    url: `${SITE.url}/blog/${p.id}/`,
+    datePublished: p.data.pubDate.toISOString(),
+  })),
+};
 ---
 
 <!doctype html>
 <html lang="es">
   <head>
-    <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+    <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} jsonLd={jsonLd} />
   </head>
   <body>
     <Header />
@@ -22,16 +38,28 @@ const posts = (await getCollection('blog'))
       <section class="hero">
         <p class="eyebrow">Homelab · Self-hosting · Seguridad</p>
         <h1>Documentando mi <span>homelab</span>, paso a paso.</h1>
-        <p class="lead">Proxmox, networking, servicios self-hosted y hardening. Lo que aprendo, tal como lo monto.</p>
+        <p class="lead">Soy <a href="/about/">Juanen</a>, administrador de sistemas y redes. Aquí cuento cómo monto y aseguro mi homelab: Proxmox, redes, servicios self-hosted y hardening, con la configuración real y los errores incluidos.</p>
         <div class="hero-actions">
-          <a class="btn primary" href="/blog">Ver todos los artículos</a>
-          <a class="btn" href="/about">Sobre mí</a>
+          <a class="btn primary" href="/blog/">Ver todos los artículos</a>
+          <a class="btn" href="/about/">Sobre mí</a>
         </div>
+        <ul class="stats" aria-label="El homelab en cifras">
+          <li><strong>{posts.length}</strong> artículos</li>
+          <li><strong>0</strong> puertos web abiertos</li>
+          <li><strong>MFA</strong> en lo expuesto</li>
+        </ul>
       </section>
 
       <h2 class="section-title">Últimos artículos</h2>
       <PostList posts={posts.slice(0, 5)} />
-      {posts.length > 5 && <a class="more" href="/blog">Ver los {posts.length} artículos →</a>}
+      {posts.length > 5 && <a class="more" href="/blog/">Ver los {posts.length} artículos →</a>}
+
+      <h2 class="section-title topics">Temas</h2>
+      <ul class="topic-list">
+        {tags.map((t) => (
+          <li><a href={`/etiquetas/${t.slug}/`}>{t.tag} <span>{t.count}</span></a></li>
+        ))}
+      </ul>
     </main>
     <Footer />
   </body>
@@ -50,7 +78,7 @@ const posts = (await getCollection('blog'))
   }
 
   .hero h1 {
-    font-size: clamp(2.1rem, 6vw, 3.4rem);
+    font-size: clamp(1.7rem, 6.6vw, 3.4rem);
     font-weight: 800;
     line-height: 1.08;
     margin-bottom: 1.25rem;
@@ -92,4 +120,38 @@ const posts = (await getCollection('blog'))
   }
 
   .more { display: inline-block; margin-top: 1.5rem; font-size: 0.92rem; }
+
+  .stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.75rem;
+    list-style: none;
+    padding: 0;
+    margin: 2.25rem 0 0;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .stats li { margin: 0; }
+  .stats strong { font-family: var(--font-mono); color: var(--text); margin-right: 0.3rem; }
+
+  .topics { margin-top: 3.5rem; }
+
+  .topic-list { display: flex; flex-wrap: wrap; gap: 0.5rem; list-style: none; padding: 0; }
+  .topic-list li { margin: 0; }
+
+  .topic-list a {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--text-2);
+    padding: 0.3rem 0.8rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--surface);
+    transition: border-color 0.2s, color 0.2s;
+  }
+
+  .topic-list a:hover { border-color: var(--accent); color: var(--accent); text-decoration: none; }
+  .topic-list span { color: var(--text-muted); margin-left: 0.25rem; }
 </style>

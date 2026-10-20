@@ -1,0 +1,51 @@
+---
+import BaseHead from '../../components/BaseHead.astro';
+import Footer from '../../components/Footer.astro';
+import Header from '../../components/Header.astro';
+import { countTags, getPosts } from '../../utils';
+
+const tags = countTags(await getPosts());
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <BaseHead title="Etiquetas · blog.jelopez.link" description="Todos los temas del blog: Proxmox, redes, seguridad, Cloudflare, WireGuard, DNS y más." />
+  </head>
+  <body>
+    <Header />
+    <main id="main">
+      <h1>Etiquetas</h1>
+      <p class="intro">Los artículos agrupados por tema.</p>
+      <ul class="tag-cloud">
+        {tags.map((t) => (
+          <li><a href={`/etiquetas/${t.slug}/`}>{t.tag} <span>{t.count}</span></a></li>
+        ))}
+      </ul>
+    </main>
+    <Footer />
+  </body>
+</html>
+
+<style>
+  h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 0.5rem; }
+  .intro { color: var(--text-muted); margin-bottom: 2rem; }
+
+  .tag-cloud { display: flex; flex-wrap: wrap; gap: 0.6rem; list-style: none; padding: 0; }
+  .tag-cloud li { margin: 0; }
+
+  .tag-cloud a {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.88rem;
+    color: var(--text-2);
+    padding: 0.4rem 0.95rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--surface);
+    transition: border-color 0.2s, color 0.2s;
+  }
+
+  .tag-cloud a:hover { border-color: var(--accent); color: var(--accent); text-decoration: none; }
+  .tag-cloud span { color: var(--text-muted); margin-left: 0.3rem; }
+</style>

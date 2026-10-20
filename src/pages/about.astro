@@ -2,12 +2,21 @@
 import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
+import { AUTHOR_LD, SITE } from '../consts';
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'AboutPage',
+  url: `${SITE.url}/about/`,
+  inLanguage: 'es-ES',
+  mainEntity: AUTHOR_LD,
+};
 ---
 
 <!doctype html>
 <html lang="es">
   <head>
-    <BaseHead title="Sobre mí — jelopez.link" description="Quién soy, cómo llegué hasta aquí y qué me interesa aprender." />
+    <BaseHead title="Sobre mí · blog.jelopez.link" description="Juan Enrique López, administrador de sistemas y redes en Albacete especializado en ciberseguridad: quién soy, mi experiencia y por qué escribo este blog." jsonLd={jsonLd} />
   </head>
   <body>
     <Header />
@@ -16,17 +25,32 @@ import Header from '../components/Header.astro';
         <h1>Sobre mí</h1>
 
         <h2>Hola, soy Juanen</h2>
-        <p>Tengo 26 años, soy Técnico Superior en ASIR y en Ciberseguridad y trabajo en administración de sistemas e infraestructura IT con foco en seguridad.</p>
+        <p>Tengo 26 años, vivo en Albacete y soy administrador de sistemas y redes especializado en ciberseguridad. Tengo el Grado Superior de ASIR y el curso de especialización en Ciberseguridad, y me gusta que las cosas funcionen y que se pueda demostrar que funcionan: copias que se validan, alertas antes que incidencias y documentación que otro pueda seguir.</p>
 
         <h2>El camino hasta aquí</h2>
         <p>Mi trayectoria no fue exactamente en línea recta. Empecé la universidad — primero Criminología, luego Economía — y aunque aprendí cosas por el camino, en ningún momento sentí que estaba donde quería estar. Cuando hice cuentas y vi que me quedaban dos años largos para terminar, tomé la decisión que tendría que haber tomado antes: hacer lo que siempre había querido desde pequeño.</p>
         <p>Crecí rodeado de pantallas — mi padre es analista-programador — así que la informática nunca fue algo ajeno. Tardé un tiempo en reconocer que era lo mío. Dos años de ASIR, uno más de Grado de Especialización en Ciberseguridad, y sin arrepentimiento.</p>
 
         <h2>Experiencia</h2>
-        <p>He trabajado en normalización y limpieza de bases de datos, y actualmente me dedico a la administración de sistemas e infraestructura, con tareas que van desde la gestión de servidores y redes hasta la seguridad del entorno.</p>
+        <p>En mi último puesto, como <strong>administrador de sistemas y redes en Proceso de la Información CLM</strong> (2025 – 2026), me encargaba de:</p>
+        <ul>
+          <li>La red y la seguridad perimetral: firewalls SonicWall y Fortinet, routers MikroTik y switches HP ProCurve y Aruba 6200M gestionados desde HPE Aruba Central, con túneles VPN en WireGuard.</li>
+          <li>La virtualización con VMware vSphere y Proxmox, y entornos en Microsoft Azure.</li>
+          <li>Las copias de seguridad con Veeam y Acronis, incluida su validación.</li>
+          <li>Active Directory en entorno híbrido y el soporte diario a usuarios.</li>
+          <li>Dashboards de monitorización a medida, desarrollados con ayuda de herramientas de IA como Claude Code.</li>
+        </ul>
+        <p>Antes trabajé como técnico informático en Via Office (bases de datos Velneo y soporte) y, durante varios veranos, en tareas administrativas y de bases de datos en el Club de Tenis Albacete.</p>
+
+        <h2>Formación</h2>
+        <ul>
+          <li><strong>Curso de especialización en Ciberseguridad</strong>, IES Leonardo Da Vinci (2024 – 2025)</li>
+          <li><strong>Grado Superior en Administración de Sistemas Informáticos en Red (ASIR)</strong>, IES Leonardo Da Vinci (2022 – 2024)</li>
+        </ul>
+        <p>Hablo español (nativo) e inglés (B2 en lectura y escritura).</p>
 
         <h2>Mi homelab</h2>
-        <p>Fuera del trabajo mantengo un homelab sobre un Intel NUC (N150, 16 GB de RAM) con Proxmox VE. Todos los servicios corren en contenedores LXC: WireGuard para el acceso remoto, AdGuard Home como DNS interno, NPMplus como reverse proxy y Authelia con MFA. El acceso desde Internet va exclusivamente por Cloudflare Tunnel, así que no hay puertos web abiertos en el router. Lo monitorizo con Uptime Kuma y Netdata, con alertas a Telegram, y periódicamente lo audito con Lynis. Todo está documentado en <a href="/blog">el blog</a>.</p>
+        <p>Fuera del trabajo mantengo un homelab sobre un Intel NUC (N150, 16 GB de RAM) con Proxmox VE. Todos los servicios corren en contenedores LXC: WireGuard para el acceso remoto, AdGuard Home como DNS interno, NPMplus como reverse proxy y Authelia con MFA. El acceso desde Internet va exclusivamente por Cloudflare Tunnel, así que no hay puertos web abiertos en el router. Lo monitorizo con Uptime Kuma y Netdata, con alertas a Telegram, y periódicamente lo audito con Lynis. Todo está documentado en <a href="/blog/">el blog</a>.</p>
 
         <h2>Qué me interesa aprender</h2>
         <p>El sector no para y yo tampoco quiero hacerlo. Ahora mismo tengo el foco puesto en:</p>
@@ -36,6 +60,9 @@ import Header from '../components/Header.astro';
           <li><strong>Inteligencia Artificial</strong> — entender cómo aplicarla de forma útil en el trabajo real</li>
         </ul>
         <p>Este blog es parte de ese proceso. Aprendo, lo documento, y si le sirve a alguien más, mejor.</p>
+
+        <h2>Contacto</h2>
+        <p>Tienes mi trayectoria completa en <a href={SITE.web}>jelopez.link</a>. Si quieres comentar algún artículo o hablar de un puesto, escríbeme a <a href={`mailto:${SITE.email}`}>{SITE.email}</a> o búscame en <a href={SITE.linkedin} rel="noopener">LinkedIn</a>.</p>
       </article>
     </main>
     <Footer />

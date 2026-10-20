@@ -1,25 +1,74 @@
 ---
 import type { CollectionEntry } from 'astro:content';
 import type { MarkdownHeading } from 'astro';
+import { Image } from 'astro:assets';
 import BaseHead from '../components/BaseHead.astro';
 import Comments from '../components/Comments.astro';
 import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import Header from '../components/Header.astro';
+import { AUTHOR_LD, SITE } from '../consts';
+import { tagSlug } from '../utils';
+
+interface PostLink { href: string; title: string }
 
 type Props = CollectionEntry<'blog'>['data'] & {
   headings?: MarkdownHeading[];
   readingTime?: number;
+  wordCount?: number;
+  newer?: PostLink;
+  older?: PostLink;
 };
 
-const { title, description, pubDate, updatedDate, tags, headings = [], readingTime } = Astro.props;
+const { title, description, pubDate, updatedDate, heroImage, tags, headings = [], readingTime, wordCount, newer, older } = Astro.props;
 const toc = headings.filter((h) => h.depth === 2 || h.depth === 3);
+const url = new URL(Astro.url.pathname, Astro.site).href;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'BlogPosting',
+      '@id': `${url}#post`,
+      headline: title,
+      description,
+      url,
+      mainEntityOfPage: url,
+      datePublished: pubDate.toISOString(),
+      dateModified: (updatedDate ?? pubDate).toISOString(),
+      inLanguage: 'es-ES',
+      keywords: tags?.join(', '),
+      wordCount,
+      image: new URL(heroImage?.src ?? '/og.png', Astro.site).href,
+      author: AUTHOR_LD,
+      publisher: { '@id': AUTHOR_LD['@id'] },
+      isPartOf: { '@type': 'Blog', '@id': `${SITE.url}/#blog`, name: SITE.name, url: SITE.url },
+    },
+    {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Blog', item: `${SITE.url}/` },
+        { '@type': 'ListItem', position: 2, name: 'Artículos', item: `${SITE.url}/blog/` },
+        { '@type': 'ListItem', position: 3, name: title, item: url },
+      ],
+    },
+  ],
+};
 ---
 
 <!doctype html>
 <html lang="es">
   <head>
-    <BaseHead title={title} description={description} />
+    <BaseHead
+      title={`${title} · jelopez.link`}
+      description={description}
+      image={heroImage}
+      type="article"
+      publishedTime={pubDate}
+      modifiedTime={updatedDate}
+      tags={tags}
+      jsonLd={jsonLd}
+    />
   </head>
   <body>
     <div class="progress" id="progress" aria-hidden="true"></div>
@@ -28,6 +77,9 @@ const toc = headings.filter((h) => h.depth === 2 || h.depth === 3);
       <div class="post-layout">
         <article>
           <div class="post-header">
+            <nav class="breadcrumb" aria-label="Ruta">
+              <a href="/blog/">Artículos</a> <span aria-hidden="true">/</span>
+            </nav>
             <div class="post-date">
               <FormattedDate date={pubDate} />
               {updatedDate && (
@@ -39,14 +91,35 @@ const toc = headings.filter((h) => h.depth === 2 || h.depth === 3);
             <p class="post-description">{description}</p>
             {tags && (
               <div class="tags">
-                {tags.map((tag: string) => <span class="tag">{tag}</span>)}
+                {tags.map((tag: string) => <a class="tag" href={`/etiquetas/${tagSlug(tag)}/`}>{tag}</a>)}
               </div>
             )}
             <hr />
           </div>
+          {heroImage && <Image class="hero-image" src={heroImage} alt="" widths={[720, 1440]} sizes="(max-width: 760px) 100vw, 720px" loading="eager" />}
           <div class="prose" id="post-content">
             <slot />
           </div>
+          <aside class="author-box" aria-label="Sobre el autor">
+            <div class="avatar" aria-hidden="true">JL</div>
+            <div>
+              <p class="author-name">{SITE.author}</p>
+              <p>Administrador de sistemas y redes en Albacete, especializado en ciberseguridad. Documento aquí lo que monto en mi homelab.</p>
+              <p class="author-links">
+                <a href="/about/">Sobre mí</a> · <a href={SITE.web}>jelopez.link</a> · <a href={SITE.linkedin} rel="noopener">LinkedIn</a>
+              </p>
+            </div>
+          </aside>
+          {(newer || older) && (
+            <nav class="post-nav" aria-label="Más artículos">
+              {older ? (
+                <a href={older.href} class="prev"><span>← Anterior</span>{older.title}</a>
+              ) : <span />}
+              {newer && (
+                <a href={newer.href} class="next"><span>Siguiente →</span>{newer.title}</a>
+              )}
+            </nav>
+          )}
           <Comments />
         </article>
         {toc.length > 2 && (
@@ -166,7 +239,11 @@ const toc = headings.filter((h) => h.depth === 2 || h.depth === 3);
 
   .tags { display: flex; gap: 0.4rem; flex-wrap: wrap; }
 
+  .breadcrumb { font-size: 0.82rem; margin-bottom: 0.5rem; color: var(--text-muted); }
+
   .tag {
+    text-decoration: none;
+    transition: color 0.2s, border-color 0.2s;
     font-family: var(--font-mono);
     font-size: 0.72rem;
     color: var(--text-muted);
@@ -177,7 +254,63 @@ const toc = headings.filter((h) => h.depth === 2 || h.depth === 3);
   }
 
 
+  .tag:hover { color: var(--accent); border-color: var(--accent); text-decoration: none; }
+
   hr { margin: 1.75rem 0 2rem; }
+
+  .hero-image { width: 100%; margin-bottom: 2rem; }
+
+  .author-box {
+    display: flex;
+    gap: 1.1rem;
+    align-items: flex-start;
+    margin-top: 3rem;
+    padding: 1.4rem 1.5rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+  }
+
+  .avatar {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #ff6d71, #6d4aff);
+    font-family: var(--font-heading);
+    font-weight: 800;
+    color: #fff;
+  }
+
+  .author-box p { font-size: 0.9rem; margin-bottom: 0.4rem; }
+  .author-box .author-name { font-weight: 600; color: var(--text); margin-bottom: 0.2rem; }
+  .author-box .author-links { margin: 0; font-size: 0.85rem; color: var(--text-muted); }
+
+  .post-nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+
+  .post-nav a {
+    display: block;
+    padding: 1rem 1.2rem;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--surface);
+    color: var(--text);
+    font-weight: 500;
+    font-size: 0.92rem;
+    line-height: 1.45;
+    transition: border-color 0.2s, background 0.2s;
+  }
+
+  .post-nav a:hover { border-color: var(--accent); background: var(--surface-hover); text-decoration: none; }
+  .post-nav span { display: block; font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono); margin-bottom: 0.3rem; }
+  .post-nav .next { text-align: right; }
 
   .prose { font-size: 1rem; line-height: 1.8; }
 
@@ -220,5 +353,7 @@ const toc = headings.filter((h) => h.depth === 2 || h.depth === 3);
 
   @media (max-width: 640px) {
     h1 { font-size: 1.7rem; }
+    .post-nav { grid-template-columns: 1fr; }
+    .post-nav .next { text-align: left; }
   }
 </style>

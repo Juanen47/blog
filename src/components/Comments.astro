@@ -1,20 +1,51 @@
-<section class="comments">
-  <script src="https://giscus.app/client.js"
-    data-repo="Juanen47/blog"
-    data-repo-id="R_kgDOSw53EA"
-    data-category="Announcements"
-    data-category-id="DIC_kwDOSw53EM4C_BKF"
-    data-mapping="pathname"
-    data-strict="0"
-    data-reactions-enabled="1"
-    data-emit-metadata="0"
-    data-input-position="bottom"
-    data-theme="dark_dimmed"
-    data-lang="es"
-    crossorigin="anonymous"
-    async>
-  </script>
+---
+// Giscus (GitHub Discussions) se carga solo cuando el lector lo pide: así el artículo
+// no descarga nada de giscus.app ni GitHub por defecto y no se envía la IP a terceros
+// sin una acción del usuario.
+const giscus = {
+  'data-repo': 'Juanen47/blog',
+  'data-repo-id': 'R_kgDOSw53EA',
+  'data-category': 'Announcements',
+  'data-category-id': 'DIC_kwDOSw53EM4C_BKF',
+  'data-mapping': 'pathname',
+  'data-strict': '0',
+  'data-reactions-enabled': '1',
+  'data-emit-metadata': '0',
+  'data-input-position': 'bottom',
+  'data-theme': 'dark_dimmed',
+  'data-lang': 'es',
+  'data-loading': 'lazy',
+};
+---
+
+<section class="comments" aria-labelledby="comments-title">
+  <h2 id="comments-title">Comentarios</h2>
+  <div class="comments-gate" id="comments-gate">
+    <p>
+      Los comentarios usan <a href="https://giscus.app/es" rel="noopener">Giscus</a> sobre GitHub Discussions.
+      Al cargarlos, tu navegador se conectará a giscus.app y GitHub.
+      <a href="/privacidad/#comentarios">Más información</a>.
+    </p>
+    <button type="button" class="comments-btn" id="comments-btn" data-giscus={JSON.stringify(giscus)}>
+      Cargar comentarios
+    </button>
+  </div>
+  <div class="giscus"></div>
 </section>
+
+<script>
+  const btn = document.getElementById('comments-btn');
+  btn?.addEventListener('click', () => {
+    const attrs = JSON.parse(btn.dataset.giscus ?? '{}') as Record<string, string>;
+    const s = document.createElement('script');
+    s.src = 'https://giscus.app/client.js';
+    s.crossOrigin = 'anonymous';
+    s.async = true;
+    Object.entries(attrs).forEach(([k, v]) => s.setAttribute(k, v));
+    document.querySelector('.comments .giscus')?.after(s);
+    document.getElementById('comments-gate')?.remove();
+  });
+</script>
 
 <style>
   .comments {
@@ -22,4 +53,30 @@
     padding-top: 2rem;
     border-top: 1px solid var(--border);
   }
+
+  h2 { font-size: 1.3rem; margin-top: 0; }
+
+  .comments-gate {
+    padding: 1.25rem 1.4rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+  }
+
+  .comments-gate p { font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1rem; }
+
+  .comments-btn {
+    font: inherit;
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--text);
+    background: var(--accent-soft);
+    border: 1px solid var(--accent);
+    border-radius: 999px;
+    padding: 0.5rem 1.1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .comments-btn:hover { background: var(--accent-glow); }
 </style>

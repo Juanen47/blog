@@ -1,0 +1,63 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import { SITE } from '../consts';
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <BaseHead title="Aviso legal, privacidad y cookies · blog.jelopez.link" description="Quién es responsable de blog.jelopez.link, qué datos se tratan y por qué el blog no usa cookies." />
+  </head>
+  <body>
+    <Header />
+    <main id="main">
+      <article class="prose">
+        <p class="eyebrow">Aviso legal · Privacidad · Cookies</p>
+        <h1>Privacidad</h1>
+        <p class="lead">Este blog no usa cookies ni analítica. Solo se conecta a terceros si tú lo pides: al cargar los comentarios o al traducir una página.</p>
+
+        <h2>Responsable</h2>
+        <p>blog.jelopez.link es el blog personal de <strong>{SITE.author}</strong>, con residencia en Albacete (España). Es un sitio sin actividad comercial ni publicidad. Contacto: <a href={`mailto:${SITE.email}`}>{SITE.email}</a>.</p>
+
+        <h2>Cookies</h2>
+        <p>El blog no instala cookies ni usa almacenamiento local en tu navegador. No hay herramientas de analítica, publicidad ni píxeles de seguimiento, y las fuentes tipográficas se sirven desde el propio dominio. Por eso no verás ningún aviso de cookies.</p>
+
+        <h2>Alojamiento</h2>
+        <p>El blog está alojado en <strong>Cloudflare Pages</strong> (Cloudflare, Inc.). Como cualquier servidor, Cloudflare procesa tu dirección IP y datos técnicos de la petición (navegador, página solicitada) para servir la web y protegerla frente a ataques. Ese tratamiento se basa en el interés legítimo en mantener el sitio disponible y seguro (art. 6.1.f RGPD). Cloudflare puede tratar datos fuera del Espacio Económico Europeo y está adherida al Marco de Privacidad de Datos UE-EE. UU.</p>
+
+        <h2 id="comentarios">Comentarios (Giscus y GitHub)</h2>
+        <p>Los comentarios funcionan con <a href="https://giscus.app/es" rel="noopener">Giscus</a>, que los guarda como Discussions en GitHub. No se cargan hasta que pulsas «Cargar comentarios». A partir de ese momento tu navegador se conecta a giscus.app y a GitHub, que reciben tu IP y la página que estás leyendo.</p>
+        <p>Para comentar tienes que iniciar sesión con tu cuenta de GitHub y autorizar la aplicación de Giscus. Tu comentario, tu nombre de usuario y tu avatar quedarán publicados en el <a href="https://github.com/Juanen47/blog/discussions" rel="noopener">repositorio del blog</a>. GitHub (GitHub, Inc., Microsoft) actúa como responsable de esos datos según su propia <a href="https://docs.github.com/es/site-policy/privacy-policies/github-general-privacy-statement" rel="noopener">declaración de privacidad</a>, y Giscus guarda una cookie de sesión en su propio dominio solo si inicias sesión. La base del tratamiento es tu consentimiento al cargar los comentarios y publicar. Puedes editar o borrar tus comentarios en GitHub cuando quieras.</p>
+
+        <h2 id="traduccion">Traducción al inglés</h2>
+        <p>El botón «EN» traduce la página en tu navegador con el servicio <a href="https://mymemory.translated.net" rel="noopener">MyMemory</a> (Translated S.r.l., Italia). Solo al pulsarlo, se le envía el texto del artículo, que ya es público, junto con tu IP como en cualquier petición web. No se envía ningún dato personal tuyo.</p>
+
+        <h2>Correo electrónico</h2>
+        <p>Si me escribes, usaré tu dirección y tu mensaje solo para responderte y no los cederé a nadie.</p>
+
+        <h2>Tus derechos</h2>
+        <p>Puedes pedir acceso, rectificación o supresión de tus datos escribiendo a <a href={`mailto:${SITE.email}`}>{SITE.email}</a>. Si crees que no se han respetado tus derechos, puedes reclamar ante la Agencia Española de Protección de Datos (<a href="https://www.aepd.es" rel="noopener">aepd.es</a>).</p>
+
+        <p class="muted">Última actualización: 20 de octubre de 2026.</p>
+      </article>
+    </main>
+    <Footer />
+  </body>
+</html>
+
+<style>
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.75rem;
+  }
+
+  h1 { font-size: 2.4rem; font-weight: 800; }
+  .lead { font-size: 1.08rem; color: var(--text-muted); }
+  .muted { font-size: 0.85rem; color: var(--text-muted); margin-top: 2.5rem; }
+</style>

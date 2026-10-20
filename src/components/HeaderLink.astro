@@ -4,9 +4,9 @@ import type { HTMLAttributes } from 'astro/types';
 type Props = HTMLAttributes<'a'>;
 
 const { href, class: className, ...props } = Astro.props;
-const pathname = Astro.url.pathname.replace(import.meta.env.BASE_URL, '');
-const subpath = pathname.match(/[^\/]+/g);
-const isActive = href === pathname || href === '/' + (subpath?.[0] || '');
+// Activo si la página actual está bajo esa sección (/blog/ cubre también /blog/<slug>/).
+const section = (path: string) => path.split('/').filter(Boolean)[0] ?? '';
+const isActive = section(String(href)) === section(Astro.url.pathname);
 ---
 
 <a href={href} class:list={[className, { active: isActive }]} aria-current={isActive ? 'page' : undefined} {...props}>
