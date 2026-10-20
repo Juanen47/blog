@@ -1,27 +1,26 @@
 ---
-import { getCollection } from 'astro:content';
 import BaseHead from '../../components/BaseHead.astro';
 import Footer from '../../components/Footer.astro';
 import Header from '../../components/Header.astro';
 import PostList from '../../components/PostList.astro';
-import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
+import { countTags, getPosts } from '../../utils';
 
-const posts = (await getCollection('blog'))
-  .filter(post => post.id !== 'sobre-mi')
-  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+const posts = await getPosts();
+const tags = countTags(posts);
 ---
 
 <!doctype html>
 <html lang="es">
   <head>
-    <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+    <BaseHead title="Todos los artículos · blog.jelopez.link" description={`Los ${posts.length} artículos del blog: Proxmox, redes, Cloudflare Tunnel, WireGuard, DNS, MFA, monitorización y hardening de un homelab real.`} />
   </head>
   <body>
     <Header />
     <main id="main">
       <div class="blog-header">
-        <h1>Blog</h1>
-        <p>Documentación técnica del homelab — Proxmox, networking, servicios self-hosted y seguridad.</p>
+        <h1>Artículos</h1>
+        <p>Documentación técnica del homelab: Proxmox, networking, servicios self-hosted y seguridad.</p>
+        <p class="filter">Por tema: {tags.slice(0, 8).map((t, i) => <>{i > 0 && ' · '}<a href={`/etiquetas/${t.slug}/`}>{t.tag}</a></>)} · <a href="/etiquetas/">todas</a></p>
       </div>
       <PostList posts={posts} />
     </main>
@@ -42,4 +41,6 @@ const posts = (await getCollection('blog'))
     color: var(--text-muted);
     margin: 0;
   }
+
+  .blog-header .filter { margin-top: 0.75rem; font-size: 0.85rem; }
 </style>

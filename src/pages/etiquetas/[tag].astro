@@ -1,0 +1,50 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import BaseHead from '../../components/BaseHead.astro';
+import Footer from '../../components/Footer.astro';
+import Header from '../../components/Header.astro';
+import PostList from '../../components/PostList.astro';
+import { countTags, getPosts } from '../../utils';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return countTags(posts).map(({ tag, slug }) => ({
+    params: { tag: slug },
+    props: { tag, posts: posts.filter((p) => p.data.tags?.includes(tag)) },
+  }));
+}
+
+interface Props {
+  tag: string;
+  posts: CollectionEntry<'blog'>[];
+}
+
+const { tag, posts } = Astro.props;
+const n = posts.length === 1 ? '1 artículo' : `${posts.length} artículos`;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <BaseHead title={`Artículos sobre ${tag} · blog.jelopez.link`} description={`${n} sobre ${tag} en el blog de homelab de Juan Enrique López: guías prácticas con la configuración real.`} />
+  </head>
+  <body>
+    <Header />
+    <main id="main">
+      <div class="tag-header">
+        <p class="eyebrow"><a href="/etiquetas/">Etiquetas</a> /</p>
+        <h1>#{tag}</h1>
+        <p>{n}</p>
+      </div>
+      <PostList posts={posts} />
+    </main>
+    <Footer />
+  </body>
+</html>
+
+<style>
+  .tag-header { margin-bottom: 2.5rem; }
+  .eyebrow { font-size: 0.85rem; margin-bottom: 0.5rem; color: var(--text-muted); }
+  h1 { font-family: var(--font-mono); font-size: 2rem; font-weight: 700; margin-bottom: 0.25rem; }
+  .tag-header p:last-child { color: var(--text-muted); margin: 0; }
+</style>

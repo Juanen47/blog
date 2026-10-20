@@ -1,63 +1,38 @@
-# Astro Starter Kit: Blog
+# blog.jelopez.link
 
-```sh
-npm create astro@latest -- --template blog
+Blog técnico del homelab de Juan Enrique López Monteagudo: Proxmox, redes, servicios self-hosted y seguridad.
+
+- **Stack:** Astro 6 + MDX, sitemap y RSS. Sin frameworks de CSS: estilos en `src/styles/global.css` y en cada componente.
+- **Despliegue:** Cloudflare Pages, automático en cada push a `master`.
+- **Fuentes:** servidas desde el propio dominio con Fontsource (`src/styles/fonts.css`), sin Google Fonts.
+- **Comentarios:** Giscus (GitHub Discussions de este repo), cargado solo cuando el lector pulsa «Cargar comentarios».
+- **Cabeceras:** CSP, HSTS y caché en `public/_headers`. Los scripts nunca se incrustan en el HTML (`assetsInlineLimit: 0`) porque la CSP no permite scripts inline.
+
+## Publicar un artículo
+
+Crea `src/content/blog/<slug>.md` (o `.mdx`). La URL será `/blog/<slug>/`.
+
+```yaml
+---
+title: 'Título del artículo'
+description: 'Una o dos frases: es lo que sale en Google y al compartir el enlace.'
+pubDate: 2026-10-20
+updatedDate: 2026-10-25   # opcional
+tags: ["homelab", "proxmox"]
+heroImage: ../../assets/mi-imagen.jpg   # opcional, también se usa al compartir
+draft: true               # opcional: no se publica hasta quitarlo
+---
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+Las etiquetas generan sus páginas en `/etiquetas/<etiqueta>/`. Reutiliza las existentes (`homelab`, `seguridad`, `proxmox`, `networking`...) para que se agrupen.
 
-Features:
+## Comandos
 
-- ✅ Minimal styling (make it your own!)
-- ✅ 100/100 Lighthouse performance
-- ✅ SEO-friendly with canonical URLs and Open Graph data
-- ✅ Sitemap support
-- ✅ RSS Feed support
-- ✅ Markdown & MDX support
+| Comando           | Acción                                      |
+| :---------------- | :------------------------------------------ |
+| `npm install`     | Instala las dependencias                    |
+| `npm run dev`     | Servidor local en `localhost:4321`          |
+| `npm run build`   | Genera el sitio en `./dist/`                |
+| `npm run preview` | Sirve `./dist/` para revisarlo antes de subir |
 
-## 🚀 Project Structure
-
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-├── public/
-├── src/
-│   ├── assets/
-│   ├── components/
-│   ├── content/
-│   ├── layouts/
-│   └── pages/
-├── astro.config.mjs
-├── README.md
-├── package.json
-└── tsconfig.json
-```
-
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
-
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
-
-The `src/content/` directory contains "collections" of related Markdown and MDX documents. Use `getCollection()` to retrieve posts from `src/content/blog/`, and type-check your frontmatter using an optional schema. See [Astro's Content Collections docs](https://docs.astro.build/en/guides/content-collections/) to learn more.
-
-Any static assets, like images, can be placed in the `public/` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Check out [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
-
-## Credit
-
-This theme is based off of the lovely [Bear Blog](https://github.com/HermanMartinus/bearblog/).
+Si añades un servicio externo (analítica, un iframe, un script), amplía la CSP en `public/_headers` y menciónalo en `src/pages/privacidad.astro`.
