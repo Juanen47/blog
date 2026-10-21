@@ -112,9 +112,19 @@ sincronizaciones largas:
 
 ```nginx
 client_max_body_size 0;
-proxy_request_buffering off;
 proxy_read_timeout 3600s;
 ```
+
+Al principio añadí también `proxy_request_buffering off;`, que se recomienda a menudo para
+subidas grandes. Con NextcloudPi es un error: nginx reenvía la subida por trozos (chunked)
+y el Apache de NextcloudPi solo le pasa a PHP el primer bloque. El cliente de escritorio
+empezó a dar errores en todos los archivos de más de 8 KB:
+
+> Expected filesize of 234532 bytes but read (from Nextcloud client) and wrote
+> (to Nextcloud storage) 8192 bytes.
+
+Siempre 8.192 bytes, se subiera lo que se subiera. Quitar esa línea y pulsar
+*Sincronizar ahora* lo arregló.
 
 Y dentro del contenedor:
 
