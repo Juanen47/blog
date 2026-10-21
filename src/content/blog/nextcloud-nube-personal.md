@@ -89,6 +89,31 @@ disco del contenedor, basta con un `du -sh` en la carpeta del host. Ojo: **el no
 usuario distingue mayúsculas**, y la carpeta se llama exactamente como el usuario. Mi primer `du`
 falló por escribirlo en minúsculas.
 
+### El error de los 8.192 bytes
+
+Con todo montado, la primera sincronización fue un desastre: de más de 800 archivos solo
+subió uno. Todos los de más de 8 KB fallaban con el mismo mensaje:
+
+> Expected filesize of 234532 bytes but read (from Nextcloud client) and wrote
+> (to Nextcloud storage) 8192 bytes.
+
+Siempre 8.192 bytes, se subiera lo que se subiera. Mi primera sospecha fue el proxy y
+estuve tocando NPMplus dos veces sin resultado. La pista buena estaba en el log del propio
+Nextcloud (`data/nextcloud.log`):
+
+> fread(): Unable to create temporary file, Check permissions in temporary files directory
+
+`nc-datadir` había movido también la carpeta temporal de PHP (`upload_tmp_dir`) al SanDisk,
+pero **PHP-FPM no se había reiniciado** y seguía usando la ruta antigua, que ya no existía.
+El `php -i` de la terminal mostraba la ruta nueva porque la línea de comandos lee la
+configuración cada vez; el PHP que atiende las subidas no. La solución:
+
+```bash
+systemctl restart php*-fpm.service apache2
+```
+
+Lección: ante un error de subida, **lo primero es leer el log del servidor**, no el del cliente.
+
 El `backup=0` excluye el punto de montaje del vzdump diario. Es intencionado: no tiene
 sentido copiar el SSD externo sobre sí mismo. Pero también significa que **los datos de
 Nextcloud necesitan su propia copia fuera de casa**. Lo explico al final.
@@ -115,16 +140,6 @@ client_max_body_size 0;
 proxy_read_timeout 3600s;
 ```
 
-Al principio añadí también `proxy_request_buffering off;`, que se recomienda a menudo para
-subidas grandes. Con NextcloudPi es un error: nginx reenvía la subida por trozos (chunked)
-y el Apache de NextcloudPi solo le pasa a PHP el primer bloque. El cliente de escritorio
-empezó a dar errores en todos los archivos de más de 8 KB:
-
-> Expected filesize of 234532 bytes but read (from Nextcloud client) and wrote
-> (to Nextcloud storage) 8192 bytes.
-
-Siempre 8.192 bytes, se subiera lo que se subiera. Quitar esa línea y pulsar
-*Sincronizar ahora* lo arregló.
 
 Y dentro del contenedor:
 
