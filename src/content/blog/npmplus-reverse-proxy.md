@@ -74,7 +74,7 @@ En resumen: NPMplus gestiona el SSL interno (LAN), Cloudflare gestiona el SSL ex
 |---|---|---|
 | `status.jelopez.link` | 192.168.1.101:3001 | Let's Encrypt / Cloudflare DNS |
 | `hmrr.jelopez.link` | 192.168.1.106:7575 | Let's Encrypt / Cloudflare DNS |
-| `netdata.jelopez.link` | 192.168.1.107:19999 | Let's Encrypt / Cloudflare DNS |
+| `nube.jelopez.link` | https://192.168.1.107:443 | Let's Encrypt / Cloudflare DNS |
 
 El WireGuard Dashboard ya no pasa por NPMplus: se accede por IP directa 
 (`http://192.168.1.100:10086`), porque `wg.jelopez.link` lo usa el DDNS como endpoint de la VPN.
@@ -85,6 +85,11 @@ Al configurar un proxy host en NPMplus, el scheme hacia el servicio interno
 debe ser siempre **http://**, nunca https://. NPMplus termina el TLS externamente 
 y reenvía en claro internamente. Parece obvio pero es un error habitual que hace 
 que el proxy no funcione.
+
+La excepción es un servicio que solo escucha en HTTPS, como NextcloudPi: ahí el scheme 
+tiene que ser **https://** hacia el puerto 443. Si lo dejas en http, el Apache de 
+Nextcloud responde con un `400 Bad Request` porque le están hablando HTTP plano a 
+su puerto TLS. Lo cuento en el post de [Nextcloud](/blog/nextcloud-nube-personal/).
 
 ## Acceso
 

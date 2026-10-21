@@ -55,7 +55,7 @@ Esto permite acceder a los servicios internos por nombre en lugar de por IP:
 |---|---|---|
 | `status.jelopez.link` | 192.168.1.103 | Uptime Kuma via NPMplus |
 | `hmrr.jelopez.link` | 192.168.1.103 | Homarr via NPMplus |
-| `netdata.jelopez.link` | 192.168.1.103 | Netdata via NPMplus |
+| `nube.jelopez.link` | 192.168.1.103 | Nextcloud via NPMplus |
 | `auth.jelopez.link` | 192.168.1.105 | Authelia |
 
 Cuando un dispositivo de la LAN accede a `status.jelopez.link`, AdGuard devuelve la IP 
