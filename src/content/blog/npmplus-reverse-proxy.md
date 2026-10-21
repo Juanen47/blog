@@ -23,9 +23,9 @@ soporte para más proveedores de DNS Challenge y actualizaciones más frecuentes
 
 En el homelab NPMplus tiene un rol concreto: **acceso interno LAN con SSL válido**.
 
-Cuando accedo a `https://wg.jelopez.link` desde dentro de casa, AdGuard resuelve 
+Cuando accedo a `https://status.jelopez.link` desde dentro de casa, AdGuard resuelve 
 el dominio a NPMplus (192.168.1.103), que termina el SSL y reenvía la petición 
-al servicio real — en este caso WireGuard Dashboard en el puerto 10086.
+al servicio real — en este caso Uptime Kuma en el puerto 3001.
 
 Esto permite tener URLs limpias con candado verde para los servicios internos, 
 sin que estén expuestos a Internet. El acceso externo va por Cloudflare Tunnel, 
@@ -72,8 +72,12 @@ En resumen: NPMplus gestiona el SSL interno (LAN), Cloudflare gestiona el SSL ex
 
 | Dominio | Reenvía a | SSL |
 |---|---|---|
-| `wg.jelopez.link` | 192.168.1.100:10086 | Let's Encrypt / Cloudflare DNS |
 | `status.jelopez.link` | 192.168.1.101:3001 | Let's Encrypt / Cloudflare DNS |
+| `hmrr.jelopez.link` | 192.168.1.106:7575 | Let's Encrypt / Cloudflare DNS |
+| `nube.jelopez.link` | https://192.168.1.107:443 | Let's Encrypt / Cloudflare DNS |
+
+El WireGuard Dashboard ya no pasa por NPMplus: se accede por IP directa 
+(`http://192.168.1.100:10086`), porque `wg.jelopez.link` lo usa el DDNS como endpoint de la VPN.
 
 ## Una regla importante
 
@@ -81,6 +85,11 @@ Al configurar un proxy host en NPMplus, el scheme hacia el servicio interno
 debe ser siempre **http://**, nunca https://. NPMplus termina el TLS externamente 
 y reenvía en claro internamente. Parece obvio pero es un error habitual que hace 
 que el proxy no funcione.
+
+La excepción es un servicio que solo escucha en HTTPS, como NextcloudPi: ahí el scheme 
+tiene que ser **https://** hacia el puerto 443. Si lo dejas en http, el Apache de 
+Nextcloud responde con un `400 Bad Request` porque le están hablando HTTP plano a 
+su puerto TLS. Lo cuento en el post de [Nextcloud](/blog/nextcloud-nube-personal/).
 
 ## Acceso
 

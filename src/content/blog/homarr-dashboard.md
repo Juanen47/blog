@@ -30,7 +30,7 @@ Sin estar expuesto a Internet — solo accesible desde la LAN o via WireGuard.
 
 ## Integración con Proxmox
 
-Una de las funciones más útiles es la integración nativa con Proxmox. Desde **Configuración → Integraciones → Proxmox** se introduce la URL del nodo (`https://192.168.1.100:8006`) y las credenciales, y Homarr muestra en tiempo real:
+Una de las funciones más útiles es la integración nativa con Proxmox. Desde **Configuración → Integraciones → Proxmox** se introduce la URL del nodo (`https://192.168.1.254:8006`) y las credenciales, y Homarr muestra en tiempo real:
 
 - Estado del nodo (`pve`) con CPU y RAM actuales
 - Lista de VMs y LXCs con su estado
@@ -42,7 +42,7 @@ En el dashboard actual se ve el nodo `pve` con CPU al 1.4% y RAM al 21.8% — ú
 El dashboard está organizado en tres secciones:
 
 **Infraestructura** — los servicios base de la red:
-- PVE (Proxmox) → `https://192.168.1.100:8006`
+- PVE (Proxmox) → `https://192.168.1.254:8006`
 - NPMplus → `http://192.168.1.103:81`
 - Router → IP del router
 - Cloudflare → `https://dash.cloudflare.com`
