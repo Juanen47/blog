@@ -6,9 +6,11 @@ tags: ["seguridad", "proxmox", "lynis", "hardening", "linux", "homelab"]
 draft: false
 ---
 
-Tener servicios en casa expuestos a internet es cómodo — pero también es una superficie de ataque real. WireGuard, Cloudflare Tunnel, Authelia, el dashboard de Homarr y el propio Proxmox VE son los puntos donde el exterior puede rozar mi red interna. Hasta ahora los tenía funcionando, pero sin haber aplicado ninguna medida de hardening sistemática más allá de la configuración básica de cada servicio.
+> **Actualización (octubre 2026):** desde esta auditoría he retirado Authelia del homelab (no protegía ningún servicio publicado y solo añadía superficie de ataque), así que he quitado sus datos de este post.
 
-Este post documenta la auditoría que hice con **Lynis** sobre los cinco sistemas expuestos y las medidas que apliqué en cada uno. Incluye comandos reales, las particularidades de cada entorno y los resultados antes y después.
+Tener servicios en casa expuestos a internet es cómodo — pero también es una superficie de ataque real. WireGuard, Cloudflare Tunnel, el dashboard de Homarr y el propio Proxmox VE son los puntos donde el exterior puede rozar mi red interna. Hasta ahora los tenía funcionando, pero sin haber aplicado ninguna medida de hardening sistemática más allá de la configuración básica de cada servicio.
+
+Este post documenta la auditoría que hice con **Lynis** sobre los sistemas expuestos y las medidas que apliqué en cada uno. Incluye comandos reales, las particularidades de cada entorno y los resultados antes y después.
 
 ## ¿Por qué Lynis?
 
@@ -29,15 +31,14 @@ El flag `--quick` omite las pausas interactivas. Al final del output aparece la 
 Hardening index : 69 [##############      ]
 ```
 
-## Los cinco sistemas auditados
+## Los sistemas auditados
 
-Mi homelab corre sobre **Proxmox VE 9.2** en un único servidor. Los servicios expuestos a internet son cuatro LXCs y el propio host PVE:
+Mi homelab corre sobre **Proxmox VE 9.2** en un único servidor. Los servicios expuestos a internet son tres LXCs y el propio host PVE:
 
 | Sistema | LXC/Host | IP | Exposición |
 |---|---|---|---|
 | WireGuard VPN | LXC 100 | 192.168.1.100 | Puerto 51820 UDP abierto en router |
 | Cloudflared | LXC 104 | 192.168.1.104 | Cloudflare Tunnel (sin puertos abiertos) |
-| Authelia | LXC 105 | 192.168.1.105 | Cloudflare Tunnel vía auth.jelopez.link |
 | Homarr | LXC 106 | 192.168.1.106 | Cloudflare Tunnel vía hmrr.jelopez.link |
 | Proxmox VE | Host PVE | 192.168.1.254 | Acceso SSH + gestión interna |
 
@@ -50,10 +51,9 @@ WireGuard es el más expuesto porque tiene un puerto UDP abierto en el router. L
 | PVE host | 62 | 72 | +10 |
 | LXC 100 — WireGuard | 66 | 77 | +11 |
 | LXC 104 — Cloudflared | 68 | 77 | +9 |
-| LXC 105 — Authelia | 69 | 78 | +9 |
 | LXC 106 — Homarr | 69 | 76 | +7 |
 
-El PVE partía más bajo (62) porque su configuración por defecto es más permisiva. Los LXCs estaban en el rango 66-69. Después del hardening todos quedaron por encima de 72, con Authelia alcanzando el 78.
+El PVE partía más bajo (62) porque su configuración por defecto es más permisiva. Los LXCs estaban en el rango 66-69. Después del hardening todos quedaron en 72 o más, con WireGuard y Cloudflared alcanzando el 77.
 
 ## Medidas aplicadas
 
@@ -185,10 +185,10 @@ El PVE tiene sus propias particularidades:
 
 ## Lo que Lynis no cubre (y qué hacer con ello)
 
-El índice de Lynis mide la configuración del sistema operativo, no la seguridad de las aplicaciones que corren encima. Un índice de 78 en el LXC de Authelia no dice nada sobre si Authelia está bien configurada — eso es otra auditoría.
+El índice de Lynis mide la configuración del sistema operativo, no la seguridad de las aplicaciones que corren encima. Un índice de 77 en el LXC de WireGuard no dice nada sobre si WireGuard está bien configurado — eso es otra auditoría.
 
 Lo que queda fuera del scope de esta campaña:
-- Revisión de configuración de cada servicio (Authelia, WireGuard, Homarr)
+- Revisión de configuración de cada servicio (WireGuard, Homarr)
 - Auditoría de los Cloudflare Access policies
 - Rotación de secretos y tokens
 

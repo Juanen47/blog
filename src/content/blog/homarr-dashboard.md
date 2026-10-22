@@ -39,7 +39,7 @@ En el dashboard actual se ve el nodo `pve` con CPU al 1.4% y RAM al 21.8% — ú
 
 ## Organización del dashboard
 
-El dashboard está organizado en tres secciones:
+El dashboard está organizado en cuatro secciones:
 
 **Infraestructura** — los servicios base de la red:
 - PVE (Proxmox) → `https://192.168.1.254:8006`
@@ -48,12 +48,14 @@ El dashboard está organizado en tres secciones:
 - Cloudflare → `https://dash.cloudflare.com`
 
 **Seguridad & Red** — servicios de seguridad y acceso:
-- Authelia → `https://auth.jelopez.link`
 - AdGuard Home → `http://192.168.1.102:3000`
 - WireGuard Dashboard → `http://192.168.1.100:10086`
 
 **Monitorización** — servicios de seguimiento:
 - Uptime Kuma → `https://status.jelopez.link`
+
+**Nube & Datos** — servicios de uso personal:
+- Nextcloud → `https://nube.jelopez.link`
 
 ## El resultado
 

@@ -63,11 +63,10 @@ comando falla silenciosamente sin él.
 ## Rutas publicadas
 
 Una vez el conector está activo y aparece como **Healthy** en el dashboard, 
-se configuran las rutas — qué subdominio apunta a qué servicio interno:
-
-| Subdominio | Servicio interno | Notas |
-|---|---|---|
-| `auth.jelopez.link` | 192.168.1.105:9091 | Authelia — portal de autenticación |
+se configuran las rutas — qué subdominio apunta a qué servicio interno 
+(*Public Hostnames* del túnel). La regla que sigo es publicar solo lo imprescindible: 
+los paneles de administración y servicios personales como Nextcloud **no** van por el 
+túnel, solo por la LAN o por WireGuard.
 
 Cloudflare crea automáticamente el registro DNS para cada ruta configurada. 
 Sin tocar el panel de DNS manualmente.

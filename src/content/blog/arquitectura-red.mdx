@@ -35,7 +35,6 @@ Ventajas respecto al setup anterior:
 - Sin puertos abiertos — la IP pública queda completamente oculta
 - Sin problema de IP dinámica — el túnel no depende de la IP del router
 - SSL gestionado automáticamente por Cloudflare — sin certbot ni APIs de IONOS
-- Authelia delante de cualquier servicio expuesto — MFA obligatorio
 
 ## WireGuard — acceso completo a la LAN
 
@@ -48,7 +47,8 @@ La diferencia con el túnel de Cloudflare es el alcance: el túnel solo da acces
 Desde dentro de la LAN el tráfico funciona de forma diferente. Los dispositivos de la red usan AdGuard Home como DNS, que tiene reescrituras para los subdominios internos:
 
 - `status.jelopez.link` → 192.168.1.103 (NPMplus)
-- `auth.jelopez.link` → 192.168.1.105 (Authelia directo)
+- `hmrr.jelopez.link` → 192.168.1.103 (NPMplus)
+- `nube.jelopez.link` → 192.168.1.103 (NPMplus)
 
 Así el tráfico interno nunca sale a Internet — va directamente a NPMplus, que termina el SSL y reenvía al servicio. Para los servicios de administración (Proxmox, AdGuard, NPMplus, WireGuard Dashboard) el acceso es directamente por IP y puerto, sin pasar por ningún proxy.
 
@@ -127,8 +127,8 @@ Así el tráfico interno nunca sale a Internet — va directamente a NPMplus, qu
   <text class="sublabel" x="436" y="238" text-anchor="middle">192.168.1.104</text>
   <line x1="496" y1="226" x2="522" y2="226" class="arr" marker-end="url(#arrow)"/>
   <rect x="525" y="204" width="100" height="44" rx="6" class="box-teal" stroke-width="0.5"/>
-  <text class="label" x="575" y="222" text-anchor="middle">Authelia MFA</text>
-  <text class="sublabel" x="575" y="238" text-anchor="middle">:9091</text>
+  <text class="label" x="575" y="222" text-anchor="middle">Servicios</text>
+  <text class="sublabel" x="575" y="238" text-anchor="middle">publicados</text>
   <path d="M563 124 L563 180 L436 180 L436 204" class="arr-orange" marker-end="url(#arrow)"/>
   <text class="sublabel" x="510" y="175" text-anchor="middle" fill="#ba7517">túnel saliente</text>
   <rect x="376" y="268" width="120" height="44" rx="6" class="box-purple" stroke-width="0.5"/>

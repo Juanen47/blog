@@ -26,16 +26,22 @@ Como el resto de servicios, la instalación se hizo con ProxMenux en un LXC dedi
 ## Monitores configurados
 
 La estrategia de monitorización es simple: **ping** para verificar que cada LXC 
-está vivo, y **HTTPS** para el único servicio expuesto externamente.
+está vivo, y **HTTP(s) con palabra clave** para Nextcloud, que es el servicio que 
+más me importa que funcione de verdad (no solo que el contenedor esté encendido).
 
 | Monitor | Tipo | Host |
 |---|---|---|
 | AdGuard | Ping | 192.168.1.102 |
 | NPMplus | Ping | 192.168.1.103 |
 | Cloudflared | Ping | 192.168.1.104 |
-| Authelia | Ping | 192.168.1.105 |
 | WireGuard | Ping | 192.168.1.100 |
-| auth.jelopez.link | HTTPS | https://auth.jelopez.link |
+| Nextcloud (web) | HTTP(s) - Palabra clave | `https://nube.jelopez.link/status.php` |
+| Nextcloud (backend 107) | HTTP(s) - Palabra clave | `https://192.168.1.107/status.php` |
+
+Los dos monitores de Nextcloud buscan `"maintenance":false` en la respuesta de 
+`status.php`, así que también avisan si Nextcloud se queda en modo mantenimiento. 
+Tener uno a través del proxy y otro directo al contenedor permite saber de un 
+vistazo si el fallo está en NPMplus/DNS/certificado o en el propio Nextcloud.
 
 Proxmox y el propio Uptime Kuma no se monitorizan — si Proxmox cae, todo cae 
 con él, y Uptime Kuma no puede hacerse ping a sí mismo de forma útil.
