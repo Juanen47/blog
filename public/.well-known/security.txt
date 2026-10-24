@@ -1,0 +1,6 @@
+# Si encuentras un problema de seguridad en jelopez.link o blog.jelopez.link,
+# escríbeme. If you find a security issue on these sites, please email me.
+Contact: mailto:juanenlopez1459@gmail.com
+Expires: 2027-10-24T00:00:00.000Z
+Preferred-Languages: es, en
+Canonical: https://blog.jelopez.link/.well-known/security.txt

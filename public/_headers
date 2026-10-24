@@ -1,11 +1,21 @@
+# Cabeceras de seguridad del blog (Cloudflare Pages).
+# La CSP parte de default-src 'none'. Terceros permitidos, siempre a petición del lector:
+#   - giscus.app (script e iframe) al pulsar «Cargar comentarios»
+#   - api.mymemory.translated.net al pulsar el botón EN
+# style-src necesita 'unsafe-inline' por los colores que Shiki escribe en el código,
+# y giscus.app para la hoja de estilos que añade su script.
 /*
   Strict-Transport-Security: max-age=31536000
-  Content-Security-Policy: default-src 'self'; script-src 'self' https://giscus.app; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://api.mymemory.translated.net; frame-src https://giscus.app; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
+  Content-Security-Policy: default-src 'none'; script-src 'self' https://giscus.app; style-src 'self' 'unsafe-inline' https://giscus.app; img-src 'self' data:; font-src 'self'; connect-src 'self' https://api.mymemory.translated.net; frame-src https://giscus.app; manifest-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
   Referrer-Policy: strict-origin-when-cross-origin
-  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()
+  Permissions-Policy: accelerometer=(), autoplay=(), browsing-topics=(), camera=(), display-capture=(), geolocation=(), gyroscope=(), hid=(), magnetometer=(), microphone=(), midi=(), payment=(), publickey-credentials-get=(), serial=(), usb=(), xr-spatial-tracking=()
   Cross-Origin-Opener-Policy: same-origin
+  X-Permitted-Cross-Domain-Policies: none
 
 /_astro/*
   Cache-Control: public, max-age=31536000, immutable
+
+/.well-known/security.txt
+  Content-Type: text/plain; charset=utf-8
