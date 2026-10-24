@@ -5,50 +5,43 @@ const today = new Date();
 ---
 
 <footer>
-  <div class="footer-links">
-    <a href={SITE.github} rel="me noopener">GitHub</a>
-    <a href={SITE.linkedin} rel="me noopener">LinkedIn</a>
-    <a href={SITE.web} rel="me">jelopez.link</a>
-    <a href={`mailto:${SITE.email}`}>Email</a>
-    <a href="/rss.xml">RSS</a>
+  <div class="wrap">
+    <p>© {today.getFullYear()} {SITE.author}</p>
+    <ul class="footer-links">
+      <li><a href={SITE.web} rel="me">jelopez.link</a></li>
+      <li><a href={SITE.github} rel="me noopener">GitHub</a></li>
+      <li><a href={SITE.linkedin} rel="me noopener">LinkedIn</a></li>
+      <li><a href={`mailto:${SITE.email}`}>Email</a></li>
+      <li><a href="/rss.xml">RSS</a></li>
+      <li><a href="/privacidad/">Privacidad y cookies</a></li>
+    </ul>
   </div>
-  <div class="footer-links footer-meta">
-    <a href="/etiquetas/">Etiquetas</a>
-    <a href="/privacidad/">Privacidad y cookies</a>
-  </div>
-  <p>© {today.getFullYear()} {SITE.author}</p>
 </footer>
 
 <style>
   footer {
-    padding: 2.5rem 2rem;
-    border-top: 1px solid var(--border);
-    text-align: center;
+    border-top: 1px solid var(--line);
+    padding: 2rem var(--gutter) 2.5rem;
+    font-size: 0.9rem;
+    color: var(--muted);
   }
 
-  .footer-links {
+  .wrap {
     display: flex;
-    justify-content: center;
-    gap: 1.5rem;
-    margin-bottom: 0.75rem;
     flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 1rem 2rem;
+    max-width: calc(var(--wrap) - 2 * var(--gutter));
+    margin: 0 auto;
   }
 
-  .footer-links a {
-    font-size: 0.82rem;
-    color: var(--text-muted);
-    text-decoration: none;
-    transition: color 0.2s;
-  }
+  p { color: var(--muted); }
 
+  .footer-links { display: flex; flex-wrap: wrap; gap: 0.4rem 1.5rem; list-style: none; }
+  .footer-links a { color: var(--text-2); text-decoration: none; }
   .footer-links a:hover { color: var(--accent); }
 
-  .footer-meta a { font-size: 0.76rem; }
-
-  p {
-    font-size: 0.78rem;
-    color: var(--text-muted);
-    opacity: 0.8;
-    margin: 0;
+  @media (max-width: 640px) {
+    .wrap { flex-direction: column; }
   }
 </style>

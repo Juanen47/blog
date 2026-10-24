@@ -16,23 +16,17 @@ const posts = (await getPosts()).slice(0, 3);
   <body>
     <Header />
     <main id="main">
-      <section class="hero">
-        <p class="eyebrow">Error 404</p>
-        <h1>Esta página no existe<span>.</span></h1>
-        <p class="lead">Puede que el enlace esté mal escrito o que el artículo haya cambiado de dirección. Prueba con la <a href="/blog/">lista de artículos</a> o las <a href="/etiquetas/">etiquetas</a>.</p>
+      <section class="page-head">
+        <h1>Esta página no existe<span class="dot">.</span></h1>
+        <p>Puede que el enlace esté mal escrito o que el artículo haya cambiado de dirección. Prueba con la <a href="/blog/">lista de artículos</a> o las <a href="/etiquetas/">etiquetas</a>.</p>
       </section>
-      <h2 class="section-title">Artículos recientes</h2>
-      <PostList posts={posts} />
+      <h2 class="section-head">Artículos recientes</h2>
+      <PostList posts={posts} headingLevel="h3" />
     </main>
     <Footer />
   </body>
 </html>
 
 <style>
-  .hero { padding: 2rem 0 2.5rem; }
-  .eyebrow { font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin-bottom: 1rem; }
-  h1 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 800; }
-  h1 span { color: var(--accent); }
-  .lead { color: var(--text-muted); max-width: 560px; }
-  .section-title { font-size: 0.85rem; font-family: var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); margin: 0 0 1rem; }
+  .dot { color: var(--accent); }
 </style>

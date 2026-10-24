@@ -12,7 +12,7 @@ const giscus = {
   'data-reactions-enabled': '1',
   'data-emit-metadata': '0',
   'data-input-position': 'bottom',
-  'data-theme': 'dark_dimmed',
+  'data-theme': 'preferred_color_scheme',
   'data-lang': 'es',
   'data-loading': 'lazy',
 };
@@ -26,7 +26,7 @@ const giscus = {
       Al cargarlos, tu navegador se conectará a giscus.app y GitHub.
       <a href="/privacidad/#comentarios">Más información</a>.
     </p>
-    <button type="button" class="comments-btn" id="comments-btn" data-giscus={JSON.stringify(giscus)}>
+    <button type="button" class="btn comments-btn" id="comments-btn" data-giscus={JSON.stringify(giscus)}>
       Cargar comentarios
     </button>
   </div>
@@ -49,34 +49,19 @@ const giscus = {
 
 <style>
   .comments {
-    margin-top: 3rem;
+    margin-top: 3.5rem;
     padding-top: 2rem;
-    border-top: 1px solid var(--border);
+    border-top: 1px solid var(--line);
   }
 
-  h2 { font-size: 1.3rem; margin-top: 0; }
+  h2 { font-size: 1.3rem; font-weight: 700; font-stretch: 112%; margin-bottom: 1rem; }
 
   .comments-gate {
     padding: 1.25rem 1.4rem;
-    background: var(--surface);
-    border: 1px solid var(--border);
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
     border-radius: 14px;
   }
 
-  .comments-gate p { font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1rem; }
-
-  .comments-btn {
-    font: inherit;
-    font-size: 0.88rem;
-    font-weight: 500;
-    color: var(--text);
-    background: var(--accent-soft);
-    border: 1px solid var(--accent);
-    border-radius: 999px;
-    padding: 0.5rem 1.1rem;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-
-  .comments-btn:hover { background: var(--accent-glow); }
+  .comments-gate p { font-size: 0.92rem; color: var(--muted); margin-bottom: 1rem; max-width: 60ch; }
 </style>

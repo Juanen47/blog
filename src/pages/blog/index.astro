@@ -17,11 +17,14 @@ const tags = countTags(posts);
   <body>
     <Header />
     <main id="main">
-      <div class="blog-header">
+      <header class="page-head">
         <h1>Artículos</h1>
-        <p>Documentación técnica del homelab: Proxmox, networking, servicios self-hosted y seguridad.</p>
-        <p class="filter">Por tema: {tags.slice(0, 8).map((t, i) => <>{i > 0 && ' · '}<a href={`/etiquetas/${t.slug}/`}>{t.tag}</a></>)} · <a href="/etiquetas/">todas</a></p>
-      </div>
+        <p>Documentación técnica del homelab: Proxmox, redes, servicios self-hosted y seguridad. {posts.length} artículos, del más reciente al más antiguo.</p>
+        <ul class="filter" aria-label="Filtrar por tema">
+          {tags.slice(0, 8).map((t) => <li><a class="tag" href={`/etiquetas/${t.slug}/`}>{t.tag}</a></li>)}
+          <li><a class="tag all" href="/etiquetas/">Todos los temas</a></li>
+        </ul>
+      </header>
       <PostList posts={posts} />
     </main>
     <Footer />
@@ -29,18 +32,6 @@ const tags = countTags(posts);
 </html>
 
 <style>
-  .blog-header { margin-bottom: 2.5rem; }
-
-  .blog-header h1 {
-    font-size: 2.2rem;
-    font-weight: 800;
-    margin-bottom: 0.5rem;
-  }
-
-  .blog-header p {
-    color: var(--text-muted);
-    margin: 0;
-  }
-
-  .blog-header .filter { margin-top: 0.75rem; font-size: 0.85rem; }
+  .filter { display: flex; flex-wrap: wrap; gap: 0.4rem; list-style: none; padding: 0; margin-top: 1.5rem; }
+  .filter .all { border-style: dashed; }
 </style>
