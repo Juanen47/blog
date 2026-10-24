@@ -23,8 +23,8 @@ cualquier cosa conectada al WiFi — sin instalar nada en cada uno de ellos.
 ## Instalación con ProxMenux
 
 Como el resto de servicios del homelab, la instalación se hizo con **ProxMenux**. 
-Un script automatizado que despliega AdGuard Home en un LXC dedicado (LXC 102, 
-IP 192.168.1.102) en pocos minutos. Sin configurar dependencias, sin tocar ficheros 
+Un script automatizado que despliega AdGuard Home en un LXC dedicado 
+en pocos minutos. Sin configurar dependencias, sin tocar ficheros 
 de configuración a mano.
 
 Una vez instalado, el siguiente paso fue apuntar el DNS del router a la IP del LXC 
@@ -53,11 +53,13 @@ Esto permite acceder a los servicios internos por nombre en lugar de por IP:
 
 | Dominio | Resuelve a | Servicio |
 |---|---|---|
-| `status.jelopez.link` | 192.168.1.103 | Uptime Kuma via NPMplus |
-| `hmrr.jelopez.link` | 192.168.1.103 | Homarr via NPMplus |
-| `nube.jelopez.link` | 192.168.1.103 | Nextcloud via NPMplus |
+| `status.midominio.com` | IP de NPMplus | Uptime Kuma via NPMplus |
+| `panel.midominio.com` | IP de NPMplus | Homarr via NPMplus |
+| `nube.midominio.com` | IP de NPMplus | Nextcloud via NPMplus |
 
-Cuando un dispositivo de la LAN accede a `status.jelopez.link`, AdGuard devuelve la IP 
+*(Los nombres son de ejemplo: los reales no existen en el DNS público y no los publico.)*
+
+Cuando un dispositivo de la LAN accede a `status.midominio.com`, AdGuard devuelve la IP 
 de NPMplus directamente — el tráfico nunca sale a Internet, va directo al servicio local.
 
 ## Ajuste fino por dispositivo
@@ -69,6 +71,6 @@ el filtrado para una IP específica sin afectar al resto de la red.
 ## Acceso
 
 AdGuard Home no está expuesto a Internet ni detrás de un proxy — se accede directamente 
-por IP desde la LAN: `http://192.168.1.102:3000`. Para administración interna es 
+por IP desde la LAN. Para administración interna es 
 más que suficiente.
 

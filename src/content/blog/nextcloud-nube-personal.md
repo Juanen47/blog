@@ -56,8 +56,6 @@ de administración propio).
 
 | Parámetro | Valor |
 |---|---|
-| **LXC ID** | 107 |
-| **IP** | 192.168.1.107 |
 | **Tipo** | Unprivileged |
 | **CPU / RAM** | 2 vCPU / 4 GB |
 | **Disco del sistema** | 16 GB en `local-lvm` |
@@ -72,7 +70,7 @@ El sistema del contenedor va en el SSD interno, pero los archivos van al SanDisk
 Se monta la carpeta del host dentro del LXC:
 
 ```bash
-pct set 107 -mp0 /mnt/usb2tb/nextcloud,mp=/mnt/ncdata,backup=0
+pct set <ID> -mp0 /mnt/usb2tb/nextcloud,mp=/mnt/ncdata,backup=0
 ```
 
 Al ser un contenedor **unprivileged**, los UID de dentro están desplazados 100000 respecto al host.
@@ -123,11 +121,11 @@ Nextcloud necesitan su propia copia fuera de casa**. Lo explico al final.
 Nextcloud **no pasa por Cloudflare Tunnel**. Para una nube personal no necesito acceso
 público: en casa estoy en la LAN, y fuera tengo WireGuard.
 
-Para tener un nombre con certificado válido en lugar de `https://192.168.1.107` con avisos
+Para tener un nombre con certificado válido en lugar de la IP del contenedor con avisos
 del navegador, reutilizo el mismo patrón que el resto de servicios internos:
 
-1. **AdGuard Home**: reescritura DNS `nube.jelopez.link` → `192.168.1.103` (NPMplus).
-2. **NPMplus**: proxy host `nube.jelopez.link` → `https://192.168.1.107:443`, con websockets
+1. **AdGuard Home**: reescritura DNS `nube.midominio.com` → IP de NPMplus. (El nombre es de ejemplo; el real no existe en el DNS público.)
+2. **NPMplus**: proxy host `nube.midominio.com` → `https://<IP de Nextcloud>:443`, con websockets
    y certificado de Let's Encrypt por DNS challenge de Cloudflare. Funciona aunque el nombre
    no exista en DNS público.
 3. **Nextcloud**: aceptar el nombre y confiar en el proxy.
@@ -145,10 +143,10 @@ Y dentro del contenedor:
 
 ```bash
 cd /var/www/nextcloud
-sudo -u www-data php occ config:system:set trusted_domains 5 --value=nube.jelopez.link
-sudo -u www-data php occ config:system:set trusted_proxies 0 --value=192.168.1.103
+sudo -u www-data php occ config:system:set trusted_domains 5 --value=nube.midominio.com
+sudo -u www-data php occ config:system:set trusted_proxies 0 --value=<IP de NPMplus>
 sudo -u www-data php occ config:system:set overwriteprotocol --value=https
-sudo -u www-data php occ config:system:set overwrite.cli.url --value=https://nube.jelopez.link
+sudo -u www-data php occ config:system:set overwrite.cli.url --value=https://nube.midominio.com
 ```
 
 ### El 400 Bad Request
@@ -172,7 +170,7 @@ el proxy host tiene que usar **https** hacia el 443. Cambiar el scheme y listo.
 
 ## Los clientes
 
-- **PC**: Nextcloud Desktop, con `https://nube.jelopez.link` como servidor.
+- **PC**: Nextcloud Desktop, con el nombre interno de Nextcloud como servidor.
 - **iPhone**: la app de Nextcloud, con **subida automática** de fotos y vídeos. La primera
   subida, mejor en WiFi y con el móvil cargando.
 
@@ -180,10 +178,10 @@ Para que funcione fuera de casa sin acordarme de nada, en la app de WireGuard de
 
 - **Activación bajo demanda** en datos móviles y WiFi, **excepto las redes de casa**.
   El túnel se levanta solo al salir.
-- **DNS = la IP de AdGuard**. `nube.jelopez.link` solo existe en mi AdGuard; con `1.1.1.1`
+- **DNS = la IP de AdGuard**. El nombre de Nextcloud solo existe en mi AdGuard; con `1.1.1.1`
   fuera de casa no resuelve. Y no pongas un DNS público como secundario: iOS los usa
   indistintamente y fallaría de forma intermitente.
-- **IPs permitidas = la LAN** (`192.168.1.0/24`). Solo el tráfico hacia casa y el DNS
+- **IPs permitidas = la LAN** (la subred de casa, por ejemplo `192.168.1.0/24`). Solo el tráfico hacia casa y el DNS
   van por el túnel; el resto sale directo. De regalo, el filtrado de AdGuard también
   funciona fuera.
 

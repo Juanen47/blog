@@ -30,7 +30,7 @@ El homelab corre sobre la conexión de fibra del hogar, con un router Movistar
 sin grandes alardes, pero cumple para lo que necesitamos.
 
 La gestión del tráfico externo no depende del router más allá de un único puerto 
-abierto: **UDP 51820** para WireGuard VPN. El acceso web a los servicios va por 
+abierto: un **puerto UDP** para WireGuard VPN. El acceso web a los servicios va por 
 Cloudflare Tunnel, que establece una conexión saliente desde la LAN sin necesidad 
 de abrir puertos adicionales.
 

@@ -16,9 +16,9 @@ Al principio el acceso externo funcionaba como en la mayoría de homelabs: abrir
 
 El flujo era el siguiente:
 
-1. El usuario accede a `wg.juanenlopez.es` desde Internet
+1. El usuario accede a un subdominio de mi antiguo dominio desde Internet
 2. El DNS resuelve a la IP pública del router
-3. El router reenvía los puertos 443 y 80 a NPMplus (192.168.1.103)
+3. El router reenvía los puertos 443 y 80 a NPMplus
 4. NPMplus termina el SSL y reenvía al servicio interno
 
 Funcionaba, pero tenía dos problemas claros: la IP pública es dinámica (si cambia, el servicio deja de funcionar hasta actualizar el DNS) y los puertos 80 y 443 estaban abiertos permanentemente en el router, exponiendo la infraestructura directamente a Internet.
@@ -41,7 +41,7 @@ Ventajas respecto al setup anterior:
 
 ## WireGuard — acceso completo a la LAN
 
-Para administrar la infraestructura de forma remota (Proxmox, SSH a los LXC, servicios no expuestos por el túnel) uso WireGuard VPN. Este sí requiere un puerto abierto en el router (UDP 51820), pero es el único.
+Para administrar la infraestructura de forma remota (Proxmox, SSH a los LXC, servicios no expuestos por el túnel) uso WireGuard VPN. Este sí requiere un puerto abierto en el router (UDP), pero es el único.
 
 La diferencia con el túnel de Cloudflare es el alcance: el túnel solo da acceso a los servicios que explícitamente publicas. WireGuard te mete dentro de la LAN como si estuvieras en casa — acceso total a cualquier IP y puerto.
 
@@ -49,9 +49,11 @@ La diferencia con el túnel de Cloudflare es el alcance: el túnel solo da acces
 
 Desde dentro de la LAN el tráfico funciona de forma diferente. Los dispositivos de la red usan AdGuard Home como DNS, que tiene reescrituras para los subdominios internos:
 
-- `status.jelopez.link` → 192.168.1.103 (NPMplus)
-- `hmrr.jelopez.link` → 192.168.1.103 (NPMplus)
-- `nube.jelopez.link` → 192.168.1.103 (NPMplus)
+- `status.midominio.com` → NPMplus
+- `panel.midominio.com` → NPMplus
+- `nube.midominio.com` → NPMplus
+
+(Nombres de ejemplo: los reales no existen en el DNS público.)
 
 Así el tráfico interno nunca sale a Internet — va directamente a NPMplus, que termina el SSL y reenvía al servicio. Para los servicios de administración (Proxmox, AdGuard, NPMplus, WireGuard Dashboard) el acceso es directamente por IP y puerto, sin pasar por ningún proxy.
 
@@ -96,14 +98,14 @@ Así el tráfico interno nunca sale a Internet — va directamente a NPMplus, qu
   <text class="sublabel" x="250" y="116" text-anchor="middle">443 + 80 abiertos</text>
   <text class="warn" x="180" y="152">⚠ Puertos expuestos a Internet</text>
   <rect x="40" y="182" width="280" height="160" rx="10" class="zone"/>
-  <text class="section-label" x="52" y="198">LAN — 192.168.1.0/24</text>
+  <text class="section-label" x="52" y="198">LAN</text>
   <rect x="60" y="204" width="110" height="44" rx="6" class="box-blue" stroke-width="0.5"/>
   <text class="label" x="115" y="222" text-anchor="middle">NPMplus</text>
-  <text class="sublabel" x="115" y="238" text-anchor="middle">192.168.1.103</text>
+  <text class="sublabel" x="115" y="238" text-anchor="middle">proxy inverso</text>
   <line x1="170" y1="226" x2="203" y2="226" class="arr" marker-end="url(#arrow)"/>
   <rect x="206" y="204" width="104" height="44" rx="6" class="box-teal" stroke-width="0.5"/>
   <text class="label" x="258" y="222" text-anchor="middle">WG Dashboard</text>
-  <text class="sublabel" x="258" y="238" text-anchor="middle">:10086</text>
+  <text class="sublabel" x="258" y="238" text-anchor="middle">panel web</text>
   <path d="M250 124 L250 196 L170 196 L170 204" class="arr" marker-end="url(#arrow)"/>
   <rect x="60" y="268" width="110" height="44" rx="6" class="box-purple" stroke-width="0.5"/>
   <text class="label" x="115" y="286" text-anchor="middle">AdGuard</text>
@@ -124,10 +126,10 @@ Así el tráfico interno nunca sale a Internet — va directamente a NPMplus, qu
   <text class="sublabel" x="563" y="116" text-anchor="middle">jelopez.link</text>
   <text class="ok" x="408" y="152">✓ Sin puertos abiertos en el router</text>
   <rect x="360" y="182" width="280" height="160" rx="10" class="zone"/>
-  <text class="section-label" x="372" y="198">LAN — 192.168.1.0/24</text>
+  <text class="section-label" x="372" y="198">LAN</text>
   <rect x="376" y="204" width="120" height="44" rx="6" class="box-amber" stroke-width="0.5"/>
   <text class="label" x="436" y="222" text-anchor="middle">cloudflared</text>
-  <text class="sublabel" x="436" y="238" text-anchor="middle">192.168.1.104</text>
+  <text class="sublabel" x="436" y="238" text-anchor="middle">conector del túnel</text>
   <line x1="496" y1="226" x2="522" y2="226" class="arr" marker-end="url(#arrow)"/>
   <rect x="525" y="204" width="100" height="44" rx="6" class="box-teal" stroke-width="0.5"/>
   <text class="label" x="575" y="222" text-anchor="middle">Servicios</text>
@@ -145,19 +147,19 @@ Así el tráfico interno nunca sale a Internet — va directamente a NPMplus, qu
   <text class="section-label" x="340" y="374" text-anchor="middle">Mayo 2026 — migración a Cloudflare Tunnel</text>
 
   <rect x="40" y="390" width="600" height="80" rx="10" class="zone"/>
-  <text class="section-label" x="52" y="406">WireGuard VPN — único puerto abierto (UDP 51820)</text>
+  <text class="section-label" x="52" y="406">WireGuard VPN — único puerto abierto (UDP)</text>
   <rect x="60" y="416" width="140" height="40" rx="6" class="box-blue" stroke-width="0.5"/>
   <text class="label" x="130" y="432" text-anchor="middle">Cliente VPN</text>
   <text class="sublabel" x="130" y="448" text-anchor="middle">(exterior)</text>
   <line x1="200" y1="436" x2="240" y2="436" class="arr" marker-end="url(#arrow)"/>
-  <text class="sublabel" x="220" y="430" text-anchor="middle">UDP 51820</text>
+  <text class="sublabel" x="220" y="430" text-anchor="middle">UDP</text>
   <rect x="243" y="416" width="140" height="40" rx="6" class="box-blue" stroke-width="0.5"/>
   <text class="label" x="313" y="432" text-anchor="middle">Router (NAT)</text>
   <text class="sublabel" x="313" y="448" text-anchor="middle">único puerto abierto</text>
   <line x1="383" y1="436" x2="418" y2="436" class="arr" marker-end="url(#arrow)"/>
   <rect x="421" y="416" width="200" height="40" rx="6" class="box-blue" stroke-width="0.5"/>
   <text class="label" x="521" y="432" text-anchor="middle">WireGuard LXC</text>
-  <text class="sublabel" x="521" y="448" text-anchor="middle">192.168.1.100 → acceso completo LAN</text>
+  <text class="sublabel" x="521" y="448" text-anchor="middle">acceso completo a la LAN</text>
 
   <rect x="40" y="488" width="600" height="110" rx="10" class="zone"/>
   <text class="section-label" x="52" y="504">Flujo interno LAN — dispositivos en casa</text>

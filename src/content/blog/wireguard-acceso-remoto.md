@@ -29,7 +29,7 @@ administrar cualquier servicio interno, activo WireGuard en el móvil o en el po
 y en segundos estoy dentro de la LAN como si estuviera en casa. Sin exponer nada
 a Internet, sin port forwarding innecesario.
 
-Es también la razón por la que el único puerto abierto en el router es el **UDP 51820** —
+Es también la razón por la que el único puerto abierto en el router es **un puerto UDP** para WireGuard —
 todo lo demás va por Cloudflare Tunnel o por WireGuard. Superficie de ataque mínima.
 
 Otro caso de uso interesante es el acceso a servicios que limitan el uso fuera
@@ -45,7 +45,7 @@ para Proxmox que automatiza el despliegue de servicios en contenedores LXC. En l
 de configurar WireGuard a mano — generar claves, editar ficheros de configuración,
 gestionar dependencias — el script lo hace todo en pocos minutos.
 
-El resultado es un LXC dedicado (LXC 100, IP 192.168.1.100) con WireGuard corriendo
+El resultado es un LXC dedicado con WireGuard corriendo
 como servicio y el dashboard de gestión accesible internamente.
 
 ## WG Dashboard
@@ -55,8 +55,8 @@ configuración. **WG Dashboard** es una interfaz web que simplifica esa gestión
 añadir y revocar clientes, ver conexiones activas, gestionar la configuración
 sin tocar la terminal.
 
-Accesible internamente via IP directa `http://192.168.1.100:10086` — el acceso por
-`wg.jelopez.link` se eliminó porque el registro A de ese subdominio lo usa el DDNS
+Accesible internamente por IP directa — el acceso por
+subdominio se eliminó porque el registro A de ese subdominio lo usa el DDNS
 para el endpoint externo de WireGuard, y tenerlo también como reescritura DNS interna
 generaba conflictos.
 
@@ -67,14 +67,14 @@ El problema es que la IP pública de una conexión doméstica es dinámica — p
 en cualquier momento.
 
 La solución es un script DDNS que actualiza automáticamente el registro A de
-`wg.jelopez.link` en Cloudflare cada vez que la IP cambia. El script corre en el
-propio LXC de WireGuard (LXC 100) y usa la API de Cloudflare:
+un subdominio (aquí `vpn.midominio.com` como ejemplo) en Cloudflare cada vez que la IP cambia. El script corre en el
+propio LXC de WireGuard y usa la API de Cloudflare:
 
 ```bash
 #!/bin/bash
 API_TOKEN="tu_api_token"
-ZONE_ID="5c1dbd9e63b53be8648f249a55f778f9"
-RECORD_NAME="wg.jelopez.link"
+ZONE_ID="tu_zone_id"
+RECORD_NAME="vpn.midominio.com"
 
 IP=$(curl -s https://ifconfig.me)
 RECORD_ID=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records?type=A&name=$RECORD_NAME" \
@@ -100,17 +100,17 @@ Algunos detalles importantes:
   el túnel no funciona.
 - El TTL se configura a 60 segundos para que los cambios de IP propaguen lo más rápido posible.
 - El token de API se crea desde **My Profile → API Tokens** con la plantilla
-  **Edit zone DNS** limitado a `jelopez.link`. No usar el Global API Key.
+  **Edit zone DNS** limitado a tu zona. No usar el Global API Key.
 
 ## El flujo completo
 
 Cuando me conecto desde fuera:
 
 1. Activo WireGuard en el dispositivo
-2. El cliente resuelve `wg.jelopez.link` — DDNS garantiza que siempre apunta a la IP actual
-3. El cliente conecta al router por UDP 51820
-4. El router reenvía al LXC de WireGuard (192.168.1.100)
-5. Obtengo una IP dentro de la LAN — acceso completo a 192.168.1.0/24
+2. El cliente resuelve el subdominio de la VPN — DDNS garantiza que siempre apunta a la IP actual
+3. El cliente conecta al router por el puerto UDP de WireGuard
+4. El router reenvía al LXC de WireGuard
+5. Obtengo una IP dentro de la LAN — acceso completo a la red de casa
 6. Puedo acceder a Proxmox, AdGuard, SSH a cualquier LXC, lo que necesite
 
 Sin VPN activa, desde Internet no hay forma de llegar a nada de eso.

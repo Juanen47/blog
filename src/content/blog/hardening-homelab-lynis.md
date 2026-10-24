@@ -35,12 +35,12 @@ Hardening index : 69 [##############      ]
 
 Mi homelab corre sobre **Proxmox VE 9.2** en un único servidor. Los servicios expuestos a internet son tres LXCs y el propio host PVE:
 
-| Sistema | LXC/Host | IP | Exposición |
-|---|---|---|---|
-| WireGuard VPN | LXC 100 | 192.168.1.100 | Puerto 51820 UDP abierto en router |
-| Cloudflared | LXC 104 | 192.168.1.104 | Cloudflare Tunnel (sin puertos abiertos) |
-| Homarr | LXC 106 | 192.168.1.106 | Cloudflare Tunnel vía hmrr.jelopez.link |
-| Proxmox VE | Host PVE | 192.168.1.254 | Acceso SSH + gestión interna |
+| Sistema | Tipo | Exposición |
+|---|---|---|
+| WireGuard VPN | LXC | Puerto UDP abierto en el router |
+| Cloudflared | LXC | Cloudflare Tunnel (sin puertos abiertos) |
+| Homarr | LXC | Cloudflare Tunnel (en agosto de 2026) |
+| Proxmox VE | Host | Acceso SSH + gestión interna |
 
 WireGuard es el más expuesto porque tiene un puerto UDP abierto en el router. Los demás llegan a internet únicamente a través de Cloudflare Tunnel, que no requiere abrir ningún puerto — pero siguen siendo puntos donde un compromiso tendría consecuencias graves.
 
@@ -49,9 +49,9 @@ WireGuard es el más expuesto porque tiene un puerto UDP abierto en el router. L
 | Sistema | Índice antes | Índice después | Mejora |
 |---|---|---|---|
 | PVE host | 62 | 72 | +10 |
-| LXC 100 — WireGuard | 66 | 77 | +11 |
-| LXC 104 — Cloudflared | 68 | 77 | +9 |
-| LXC 106 — Homarr | 69 | 76 | +7 |
+| WireGuard | 66 | 77 | +11 |
+| Cloudflared | 68 | 77 | +9 |
+| Homarr | 69 | 76 | +7 |
 
 El PVE partía más bajo (62) porque su configuración por defecto es más permisiva. Los LXCs estaban en el rango 66-69. Después del hardening todos quedaron en 72 o más, con WireGuard y Cloudflared alcanzando el 77.
 
@@ -84,8 +84,8 @@ net.ipv4.conf.all.rp_filter = 1
 
 **Excepciones importantes:**
 
-- En **LXC 106 (Homarr/Docker)** omití `rp_filter` porque Docker crea rutas asimétricas entre la interfaz del host y los bridges de los contenedores. Activarlo rompe la red de los contenedores.
-- En **LXC 100 (WireGuard)** y el **host PVE** no toqué `net.ipv4.ip_forward` — lo necesitan para enrutar tráfico VPN y red de VMs/LXCs respectivamente.
+- En el **LXC de Homarr (Docker)** omití `rp_filter` porque Docker crea rutas asimétricas entre la interfaz del host y los bridges de los contenedores. Activarlo rompe la red de los contenedores.
+- En el **LXC de WireGuard** y el **host PVE** no toqué `net.ipv4.ip_forward` — lo necesitan para enrutar tráfico VPN y red de VMs/LXCs respectivamente.
 
 Aplicar los cambios sin reiniciar:
 
@@ -156,9 +156,9 @@ Mantiene el sistema actualizado automáticamente en parches de seguridad. Impres
 En cada LXC configura solo los puertos estrictamente necesarios para su función:
 
 ```bash
-# Ejemplo para WireGuard (LXC 100)
+# Ejemplo para WireGuard
 ufw default deny incoming
-ufw allow 51820/udp   # WireGuard
+ufw allow <puerto>/udp   # WireGuard
 ufw allow 22/tcp      # SSH (solo desde LAN)
 ufw enable
 ```
@@ -167,11 +167,11 @@ Cada LXC tiene su propio perfil mínimo. No hay reglas genéricas — si un serv
 
 ## Consideraciones específicas por sistema
 
-### WireGuard (LXC 100)
+### WireGuard
 
 La advertencia más llamativa de Lynis en este LXC fue que `net.ipv4.conf.all.forwarding` estaba en `1`, marcado como `DIFFERENT` (diferente del valor recomendado `0`). **No lo cambié.** WireGuard necesita IP forwarding para enrutar el tráfico de los clientes VPN hacia la LAN. Desactivarlo rompería la VPN por completo. Es un falso positivo de Lynis para este caso de uso.
 
-### Homarr con Docker (LXC 106)
+### Homarr con Docker
 
 Docker gestiona sus propios bridges de red y necesita `ip_forward` activo. Además, `rp_filter` en modo estricto (`1`) rechaza paquetes cuya ruta de retorno no coincide con la interfaz de entrada — algo que pasa constantemente en el tráfico entre el host y los contenedores. Omití ambos parámetros en el `sysctl.d` de este LXC.
 

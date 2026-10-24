@@ -44,7 +44,7 @@ Se crea el túnel, se le da un nombre (en este caso `Homelab`) y Cloudflare
 genera un token único para el conector.
 
 El conector es `cloudflared` — un daemon que corre en un LXC dedicado 
-(LXC 104, IP 192.168.1.104) y mantiene la conexión saliente hacia Cloudflare. 
+y mantiene la conexión saliente hacia Cloudflare. 
 La instalación en Debian 12 se hace añadiendo el repositorio oficial de Cloudflare:
 
 ```bash
@@ -74,7 +74,7 @@ Sin tocar el panel de DNS manualmente.
 ## El resultado
 
 Con el túnel activo, los puertos 80 y 443 del router están cerrados. 
-El único puerto abierto es el **UDP 51820** de WireGuard, que es inevitable 
+El único puerto abierto es el **puerto UDP** de WireGuard, que es inevitable 
 para la VPN. Todo el tráfico web externo entra por el túnel — sin IP expuesta, 
 sin superficie de ataque innecesaria.
 
