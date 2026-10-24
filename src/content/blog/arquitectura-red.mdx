@@ -1,9 +1,12 @@
 ---
 pubDate: "2026-05-31"
+updatedDate: "2026-10-24"
 title: 'Arquitectura de red del homelab — WAN y LAN'
 tags: ["homelab", "cloudflare", "wireguard", "networking", "proxmox"]
 description: "Cómo evolucionó el acceso externo del homelab: del port forwarding clásico con NPMplus a un túnel Cloudflare sin puertos abiertos, y cómo fluye el tráfico interno en la LAN."
 ---
+
+> **Actualización (octubre 2026):** este post cuenta cómo estaba la red en mayo. Desde entonces Authelia se ha retirado y el túnel de Cloudflare ya no publica ningún servicio. La foto actual está en [El homelab en dos esquemas](/blog/homelab-esquemas-red/).
 
 Una de las partes más importantes de cualquier homelab es entender cómo fluye el tráfico — tanto desde Internet hacia tus servicios, como dentro de tu propia red local. En este post explico la arquitectura actual del mío y cómo llegué hasta aquí.
 

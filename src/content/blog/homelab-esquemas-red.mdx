@@ -1,0 +1,278 @@
+---
+pubDate: "2026-10-24"
+title: 'El homelab en dos esquemas: la red y los servicios'
+tags: ["homelab", "networking", "proxmox", "seguridad"]
+description: "Dos diagramas para entender el homelab de un vistazo: uno sencillo con cómo entra y sale el tráfico, y otro detallado con qué corre en cada parte del servidor."
+---
+
+Desde el post de [arquitectura de red](/blog/arquitectura-red/) de mayo el homelab ha cambiado
+bastante: ahora tiene backups diarios, una nube propia con Nextcloud, vigilancia desde fuera de
+casa y algún servicio menos. Tocaba redibujarlo, y en lugar de un único diagrama enorme he hecho
+dos: uno sencillo para ver cómo encaja todo y otro con el detalle de cada parte.
+
+## Esquema 1: la red de un vistazo
+
+<figure class="diagram">
+<div class="diagram-scroll">
+<svg class="dg" viewBox="0 0 720 436" role="img" xmlns="http://www.w3.org/2000/svg">
+  <title>Esquema sencillo de la red del homelab</title>
+  <desc>Internet arriba, con Cloudflare sirviendo la web y el blog, el acceso por VPN desde fuera y los servicios de avisos. En medio, el router con un único puerto UDP abierto para la VPN. Abajo, la red de casa con los dispositivos, el servidor Proxmox y el disco externo de copias.</desc>
+  <defs>
+    <marker id="d1-a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="rgba(236,236,238,0.7)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="d1-o" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#f38020" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+
+  <rect x="20" y="16" width="680" height="168" rx="12" class="dg-zone"/>
+  <text class="dg-z" x="36" y="36">INTERNET</text>
+
+  <rect x="36" y="52" width="160" height="50" rx="8" class="dg-dev"/>
+  <text class="dg-t" x="116" y="73" text-anchor="middle">Visitante del blog</text>
+  <text class="dg-s" x="116" y="89" text-anchor="middle">cualquier navegador</text>
+
+  <rect x="280" y="52" width="180" height="50" rx="8" class="dg-ext"/>
+  <text class="dg-t" x="370" y="73" text-anchor="middle">Cloudflare</text>
+  <text class="dg-s" x="370" y="89" text-anchor="middle">DNS · web y blog (Pages)</text>
+
+  <rect x="524" y="52" width="160" height="50" rx="8" class="dg-ext"/>
+  <text class="dg-t" x="604" y="73" text-anchor="middle">Avisos</text>
+  <text class="dg-s" x="604" y="89" text-anchor="middle">correo · Telegram</text>
+
+  <rect x="36" y="118" width="160" height="50" rx="8" class="dg-dev"/>
+  <text class="dg-t" x="116" y="139" text-anchor="middle">Yo, fuera de casa</text>
+  <text class="dg-s" x="116" y="155" text-anchor="middle">app de WireGuard</text>
+
+  <rect x="524" y="118" width="160" height="50" rx="8" class="dg-ext"/>
+  <text class="dg-t" x="604" y="139" text-anchor="middle">Vigilancia externa</text>
+  <text class="dg-s" x="604" y="155" text-anchor="middle">latido del servidor</text>
+
+  <path d="M196 77 L276 77" class="dg-a" marker-end="url(#d1-a)"/>
+
+  <rect x="36" y="212" width="160" height="56" rx="8" class="dg-net"/>
+  <text class="dg-t" x="116" y="236" text-anchor="middle">Router del operador</text>
+  <text class="dg-s" x="116" y="253" text-anchor="middle">1 puerto UDP (VPN)</text>
+
+  <path d="M116 168 L116 208" class="dg-a" marker-end="url(#d1-a)"/>
+  <text class="dg-l" x="124" y="192">VPN cifrada</text>
+
+  <rect x="20" y="288" width="680" height="132" rx="12" class="dg-zone"/>
+  <text class="dg-z" x="36" y="308">CASA (LAN)</text>
+
+  <rect x="36" y="324" width="160" height="56" rx="8" class="dg-dev"/>
+  <text class="dg-t" x="116" y="348" text-anchor="middle">Dispositivos de casa</text>
+  <text class="dg-s" x="116" y="365" text-anchor="middle">PC, móviles, WiFi</text>
+
+  <rect x="280" y="318" width="180" height="68" rx="8" class="dg-host"/>
+  <text class="dg-t" x="370" y="348" text-anchor="middle">Servidor Proxmox</text>
+  <text class="dg-s" x="370" y="366" text-anchor="middle">Intel NUC · 7 contenedores</text>
+
+  <rect x="524" y="324" width="160" height="56" rx="8" class="dg-disk"/>
+  <text class="dg-t" x="604" y="348" text-anchor="middle">SSD externo 2 TB</text>
+  <text class="dg-s" x="604" y="365" text-anchor="middle">copias diarias</text>
+
+  <path d="M116 268 L116 320" class="dg-a" marker-end="url(#d1-a)"/>
+  <path d="M196 240 L330 240 L330 314" class="dg-a" marker-end="url(#d1-a)"/>
+  <text class="dg-l" x="206" y="233">entra al servidor</text>
+  <path d="M196 352 L276 352" class="dg-a" marker-end="url(#d1-a)"/>
+  <text class="dg-l" x="236" y="345" text-anchor="middle">DNS y apps</text>
+  <path d="M460 352 L520 352" class="dg-a" marker-end="url(#d1-a)"/>
+  <text class="dg-l" x="490" y="345" text-anchor="middle">backup</text>
+
+  <path d="M420 318 L420 106" class="dg-tun" marker-end="url(#d1-o)"/>
+  <text class="dg-l" x="412" y="200" text-anchor="end">túnel saliente</text>
+  <text class="dg-l" x="412" y="214" text-anchor="end">sin rutas publicadas</text>
+
+  <path d="M460 334 L496 334 L496 77 L520 77" class="dg-a" marker-end="url(#d1-a)"/>
+  <path d="M496 143 L520 143" class="dg-a" marker-end="url(#d1-a)"/>
+</svg>
+</div>
+<figcaption>Quien visita la web o el blog nunca llega a casa: se queda en Cloudflare. Desde fuera, la única puerta es la VPN.</figcaption>
+</figure>
+
+Hay tres caminos y no se mezclan:
+
+- **Quien lee el blog** llega a Cloudflare y ahí se acaba el viaje. La web y el blog son estáticos
+  y viven en Cloudflare Pages, así que siguen en línea aunque el servidor de casa esté apagado.
+- **Yo, cuando estoy fuera**, entro por WireGuard. Es el único puerto abierto en el router, y sin
+  la clave del cliente no responde a nada.
+- **Dentro de casa**, los dispositivos usan el DNS del homelab y acceden a las aplicaciones
+  internas sin salir a Internet.
+
+El túnel de Cloudflare sigue conectado, pero hoy no publica ningún servicio. Lo mantengo para
+poder publicar algo en el futuro sin abrir puertos. Las flechas que salen del servidor hacia la
+derecha son lo único que el homelab envía por iniciativa propia: avisos y un latido periódico para
+que alguien de fuera se entere si deja de responder.
+
+## Esquema 2: qué corre en cada parte
+
+<figure class="diagram">
+<div class="diagram-scroll">
+<svg class="dg" viewBox="0 0 720 500" role="img" xmlns="http://www.w3.org/2000/svg">
+  <title>Esquema detallado de los servicios del homelab</title>
+  <desc>El servidor Proxmox con cuatro contenedores de acceso y red (AdGuard, NPMplus, WireGuard y cloudflared), tres servicios web detrás de NPMplus (Nextcloud, Homarr y Uptime Kuma), el host con sus discos, y a la derecha los servicios externos: Cloudflare, Telegram, Healthchecks.io y correo.</desc>
+  <defs>
+    <marker id="d2-a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="rgba(236,236,238,0.7)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="d2-o" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#f38020" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+
+  <rect x="36" y="16" width="223" height="48" rx="8" class="dg-dev"/>
+  <text class="dg-t" x="147" y="36" text-anchor="middle">Dispositivo en casa</text>
+  <text class="dg-s" x="147" y="52" text-anchor="middle">o conectado por la VPN</text>
+
+  <rect x="270" y="16" width="223" height="48" rx="8" class="dg-dev"/>
+  <text class="dg-t" x="381" y="36" text-anchor="middle">Fuera de casa</text>
+  <text class="dg-s" x="381" y="52" text-anchor="middle">app de WireGuard</text>
+
+  <path d="M89 64 L89 140" class="dg-a" marker-end="url(#d2-a)"/>
+  <text class="dg-l" x="95" y="84">DNS</text>
+  <path d="M206 64 L206 140" class="dg-a" marker-end="url(#d2-a)"/>
+  <text class="dg-l" x="212" y="84">HTTPS</text>
+  <path d="M323 64 L323 140" class="dg-a" marker-end="url(#d2-a)"/>
+  <text class="dg-l" x="329" y="84">UDP, por el router</text>
+
+  <rect x="20" y="92" width="490" height="394" rx="12" class="dg-zone"/>
+  <text class="dg-z" x="36" y="476">SERVIDOR · PROXMOX VE</text>
+  <text class="dg-z" x="218" y="128">ACCESO Y RED</text>
+
+  <rect x="36" y="144" width="106" height="50" rx="8" class="dg-net"/>
+  <text class="dg-t" x="89" y="165" text-anchor="middle">AdGuard</text>
+  <text class="dg-s" x="89" y="181" text-anchor="middle">DNS + bloqueo</text>
+
+  <rect x="153" y="144" width="106" height="50" rx="8" class="dg-net"/>
+  <text class="dg-t" x="206" y="165" text-anchor="middle">NPMplus</text>
+  <text class="dg-s" x="206" y="181" text-anchor="middle">proxy + TLS</text>
+
+  <rect x="270" y="144" width="106" height="50" rx="8" class="dg-net"/>
+  <text class="dg-t" x="323" y="165" text-anchor="middle">WireGuard</text>
+  <text class="dg-s" x="323" y="181" text-anchor="middle">VPN + panel</text>
+
+  <rect x="387" y="144" width="106" height="50" rx="8" class="dg-net"/>
+  <text class="dg-t" x="440" y="165" text-anchor="middle">cloudflared</text>
+  <text class="dg-s" x="440" y="181" text-anchor="middle">túnel sin rutas</text>
+
+  <path d="M206 194 L206 212 L109 212 L109 236" class="dg-a" marker-end="url(#d2-a)"/>
+  <path d="M206 212 L265 212 L265 236" class="dg-a" marker-end="url(#d2-a)"/>
+  <path d="M265 212 L421 212 L421 236" class="dg-a" marker-end="url(#d2-a)"/>
+  <text class="dg-z" x="128" y="230">SERVICIOS WEB</text>
+
+  <rect x="36" y="240" width="146" height="50" rx="8" class="dg-svc"/>
+  <text class="dg-t" x="109" y="261" text-anchor="middle">Nextcloud</text>
+  <text class="dg-s" x="109" y="277" text-anchor="middle">nube personal · 2FA</text>
+
+  <rect x="192" y="240" width="146" height="50" rx="8" class="dg-svc"/>
+  <text class="dg-t" x="265" y="261" text-anchor="middle">Homarr</text>
+  <text class="dg-s" x="265" y="277" text-anchor="middle">panel de inicio</text>
+
+  <rect x="348" y="240" width="146" height="50" rx="8" class="dg-svc"/>
+  <text class="dg-t" x="421" y="261" text-anchor="middle">Uptime Kuma</text>
+  <text class="dg-s" x="421" y="277" text-anchor="middle">estado de servicios</text>
+
+  <text class="dg-z" x="36" y="322">HOST Y ALMACENAMIENTO</text>
+
+  <rect x="36" y="330" width="457" height="50" rx="8" class="dg-host"/>
+  <text class="dg-t" x="264" y="351" text-anchor="middle">Proxmox VE (host)</text>
+  <text class="dg-s" x="264" y="367" text-anchor="middle">firewall solo LAN · 2FA · logs en RAM · copia diaria</text>
+
+  <rect x="36" y="402" width="223" height="50" rx="8" class="dg-disk"/>
+  <text class="dg-t" x="147" y="423" text-anchor="middle">SSD interno 512 GB</text>
+  <text class="dg-s" x="147" y="439" text-anchor="middle">sistema y contenedores</text>
+
+  <rect x="270" y="402" width="223" height="50" rx="8" class="dg-disk"/>
+  <text class="dg-t" x="381" y="423" text-anchor="middle">SSD externo 2 TB (USB)</text>
+  <text class="dg-s" x="381" y="439" text-anchor="middle">copias diarias + datos de Nextcloud</text>
+
+  <path d="M381 380 L381 398" class="dg-a" marker-end="url(#d2-a)"/>
+
+  <rect x="522" y="92" width="186" height="394" rx="12" class="dg-zone"/>
+  <text class="dg-z" x="538" y="476">FUERA DE CASA</text>
+
+  <rect x="538" y="144" width="154" height="50" rx="8" class="dg-ext"/>
+  <text class="dg-t" x="615" y="165" text-anchor="middle">Cloudflare</text>
+  <text class="dg-s" x="615" y="181" text-anchor="middle">DNS · web y blog</text>
+
+  <rect x="538" y="240" width="154" height="50" rx="8" class="dg-ext"/>
+  <text class="dg-t" x="615" y="261" text-anchor="middle">Telegram</text>
+  <text class="dg-s" x="615" y="277" text-anchor="middle">avisos de Uptime Kuma</text>
+
+  <rect x="538" y="330" width="154" height="50" rx="8" class="dg-ext"/>
+  <text class="dg-t" x="615" y="351" text-anchor="middle">Healthchecks.io</text>
+  <text class="dg-s" x="615" y="367" text-anchor="middle">latido y backups</text>
+
+  <rect x="538" y="402" width="154" height="50" rx="8" class="dg-ext"/>
+  <text class="dg-t" x="615" y="423" text-anchor="middle">Correo</text>
+  <text class="dg-s" x="615" y="439" text-anchor="middle">errores y backups</text>
+
+  <path d="M493 169 L534 169" class="dg-tun" marker-end="url(#d2-o)"/>
+  <path d="M494 265 L534 265" class="dg-a" marker-end="url(#d2-a)"/>
+  <path d="M493 351 L534 351" class="dg-a" marker-end="url(#d2-a)"/>
+  <path d="M493 370 L516 370 L516 427 L534 427" class="dg-a" marker-end="url(#d2-a)"/>
+</svg>
+</div>
+<figcaption>Todo corre en contenedores LXC sobre un único Intel NUC. En móvil, desliza el esquema para verlo entero.</figcaption>
+</figure>
+
+### Acceso y red
+
+Son los cuatro contenedores por los que pasa el tráfico antes de llegar a cualquier aplicación:
+
+| Servicio | Para qué sirve |
+|---|---|
+| **AdGuard Home** | DNS de toda la casa. Bloquea publicidad y resuelve los nombres internos del homelab, que no existen en el DNS público |
+| **NPMplus** | Proxy inverso. Da HTTPS con certificados válidos a las aplicaciones internas |
+| **WireGuard** | La VPN para entrar desde fuera, con su panel de gestión accesible solo desde dentro |
+| **cloudflared** | El conector del túnel de Cloudflare. Conectado, pero sin ninguna ruta publicada |
+
+Un dispositivo de casa (o yo conectado por la VPN) pregunta primero a AdGuard, que le devuelve
+la dirección de NPMplus, y NPMplus reenvía la petición a la aplicación que toque. Así el tráfico
+interno nunca sale a Internet. Los paneles de administración (Proxmox, AdGuard, NPMplus y el de
+WireGuard) no pasan por el proxy y solo se abren desde la LAN.
+
+### Servicios web
+
+- **Nextcloud** es mi nube personal, con 2FA y accesible solo desde casa o por la VPN. Lo conté en
+  [este post](/blog/nextcloud-nube-personal/).
+- **Homarr** es la página de inicio con accesos directos y el estado de cada servicio.
+- **Uptime Kuma** vigila que todo responda y avisa por Telegram si algo cae.
+
+### Host y almacenamiento
+
+El propio Proxmox tiene su parte del trabajo: un firewall que solo admite conexiones de la red de
+casa, 2FA en el acceso, los logs en RAM con volcado a disco cada hora para no desgastar el SSD, y
+una copia de seguridad diaria de todos los contenedores al SSD externo. Ese mismo disco guarda los
+datos de Nextcloud, así que los archivos no ocupan el SSD interno.
+
+### Fuera de casa
+
+Uptime Kuma tiene un problema de base: si se va la luz o la fibra, cae con todo lo demás y no puede
+avisar. Por eso el servidor envía cada pocos minutos un latido a Healthchecks.io, y también cuando
+termina la copia de seguridad. Si los latidos dejan de llegar, el aviso sale desde fuera. Los
+errores de Proxmox y el resultado de cada copia llegan además por correo.
+
+## Lo que no aparece en los esquemas
+
+Este blog es público, así que los esquemas no llevan direcciones IP, puertos (salvo que la VPN usa
+uno UDP), nombres internos ni identificadores. No es que esconderlos haga seguro el homelab, pero
+tampoco hay motivo para dar el mapa hecho. Para el día a día tengo una documentación privada con
+todo el detalle.
+
+## Qué ha cambiado desde mayo
+
+- **Copias de seguridad.** Antes no había ninguna. Ahora cada noche se copian todos los
+  contenedores a un SSD externo y he probado a restaurar uno.
+- **Nextcloud** ha ocupado el sitio de Netdata como nuevo servicio del servidor.
+- **Authelia ya no está.** Protegía el único servicio publicado en el túnel, y al no publicar
+  nada dejó de tener sentido mantenerlo. Si algún día publico algo, irá detrás de Cloudflare
+  Access, que pide login antes de que el tráfico llegue a casa.
+- **Vigilancia externa** con Healthchecks.io y avisos por correo, además de Telegram.
+- **Más hardening:** firewall de Proxmox activo, 2FA en el host y Lynis pasado a todos los
+  contenedores.
+
+Lo siguiente en la lista es tener una copia fuera de casa. Mientras todas las copias estén en el
+mismo sitio que el servidor, un incendio o un robo se lo llevan todo.
