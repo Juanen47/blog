@@ -15,22 +15,15 @@ const isActive = section(String(href)) === section(Astro.url.pathname);
 
 <style>
   a {
-    font-size: 0.85rem;
+    font-size: 0.92rem;
     font-weight: 500;
-    color: var(--text-muted);
+    color: var(--text-2);
     text-decoration: none;
-    transition: color 0.2s;
-    padding: 0.25rem 0;
-    border-bottom: 2px solid transparent;
+    padding-block: 0.4rem;
+    background: linear-gradient(var(--accent), var(--accent)) no-repeat left bottom / 0 2px;
+    transition: color 0.2s, background-size 0.3s var(--ease-out);
   }
 
-  a:hover {
-    color: var(--text);
-    text-decoration: none;
-  }
-
-  a.active {
-    color: var(--text);
-    border-bottom-color: var(--accent);
-  }
+  a:hover { color: var(--text); background-size: 100% 2px; }
+  a.active { color: var(--text); background-size: 100% 2px; }
 </style>

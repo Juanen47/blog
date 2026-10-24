@@ -14,7 +14,6 @@ import { SITE } from '../consts';
     <Header />
     <main id="main">
       <article class="prose">
-        <p class="eyebrow">Aviso legal · Privacidad · Cookies</p>
         <h1>Privacidad</h1>
         <p class="lead">Este blog no usa cookies ni analítica. Solo se conecta a terceros si tú lo pides: al cargar los comentarios o al traducir una página.</p>
 
@@ -48,16 +47,7 @@ import { SITE } from '../consts';
 </html>
 
 <style>
-  .eyebrow {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--accent);
-    margin-bottom: 0.75rem;
-  }
-
-  h1 { font-size: 2.4rem; font-weight: 800; }
-  .lead { font-size: 1.08rem; color: var(--text-muted); }
-  .muted { font-size: 0.85rem; color: var(--text-muted); margin-top: 2.5rem; }
+  h1 { margin-bottom: 1rem; }
+  .lead { font-size: 1.15rem; color: var(--muted); }
+  .muted { font-size: 0.88rem; color: var(--muted); margin-top: 2.5rem; }
 </style>

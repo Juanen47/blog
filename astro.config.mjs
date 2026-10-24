@@ -30,7 +30,7 @@ export default defineConfig({
     }),
   ],
   markdown: {
-    shikiConfig: { theme: 'github-dark-dimmed', wrap: false },
+    shikiConfig: { themes: { light: 'github-light', dark: 'github-dark-dimmed' }, wrap: false },
   },
   // Scripts siempre como fichero externo: la CSP de public/_headers no permite scripts inline.
   vite: { build: { assetsInlineLimit: 0 } },

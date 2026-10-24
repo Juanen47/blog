@@ -1,126 +1,101 @@
 ---
 import type { CollectionEntry } from 'astro:content';
-import { readingTime } from '../utils';
+import { readingTime, tagSlug } from '../utils';
 
 interface Props {
   posts: CollectionEntry<'blog'>[];
+  headingLevel?: 'h2' | 'h3';
 }
 
-const { posts } = Astro.props;
+const { posts, headingLevel: H = 'h2' } = Astro.props;
 ---
 
-<ul class="post-list">
+<ol class="post-list">
   {posts.map((post) => (
-    <li>
-      <a href={`/blog/${post.id}/`} class="card">
-        <div class="post-meta">
-          <time datetime={post.data.pubDate.toISOString()}>
-            {post.data.pubDate.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })}
-          </time>
-          <span class="dot" aria-hidden="true">·</span>
-          <span>{readingTime(post.body)} min de lectura</span>
-        </div>
-        <h2>{post.data.title}</h2>
+    <li class="post">
+      <time datetime={post.data.pubDate.toISOString()}>
+        {post.data.pubDate.toLocaleDateString('es-ES', { year: 'numeric', month: 'short', day: 'numeric' })}
+      </time>
+      <div class="post-body">
+        <H class="post-title"><a href={`/blog/${post.id}/`} style={`view-transition-name: t-${post.id}`}>{post.data.title}</a></H>
         <p>{post.data.description}</p>
-        <div class="card-footer">
+        <div class="post-meta">
+          <span>{readingTime(post.body)} min de lectura</span>
           {post.data.tags && (
-            <div class="tags">
+            <ul class="post-tags" aria-label="Etiquetas">
               {post.data.tags.slice(0, 3).map((tag: string) => (
-                <span class="tag">{tag}</span>
+                <li><a class="tag" href={`/etiquetas/${tagSlug(tag)}/`}>{tag}</a></li>
               ))}
-            </div>
+            </ul>
           )}
-          <span class="arrow" aria-hidden="true">→</span>
         </div>
-      </a>
+      </div>
     </li>
   ))}
-</ul>
+</ol>
 
 <style>
-  .post-list {
-    list-style: none;
-    padding: 0;
+  .post-list { list-style: none; padding: 0; }
+
+  .post {
+    position: relative;
     display: grid;
-    gap: 1rem;
+    grid-template-columns: 7.5rem minmax(0, 1fr);
+    gap: 1.5rem;
+    padding: 1.6rem 0;
+    border-top: 1px solid var(--line);
   }
 
-  .post-list li { margin: 0; }
+  .post:last-child { border-bottom: 1px solid var(--line); }
 
-  .card {
-    display: block;
-    padding: 1.5rem 1.6rem;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    color: inherit;
+  time {
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+    padding-top: 0.2rem;
+  }
+
+  .post-body { max-width: 44rem; }
+
+  .post-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    line-height: 1.25;
+    margin-bottom: 0.45rem;
+  }
+
+  .post-title a {
+    color: var(--text);
     text-decoration: none;
-    transition: border-color 0.2s, background 0.2s, transform 0.2s, box-shadow 0.2s;
+    background: linear-gradient(var(--accent), var(--accent)) no-repeat left 100% / 0 2px;
+    transition: color 0.2s, background-size 0.35s var(--ease-out);
   }
 
-  .card:hover {
-    text-decoration: none;
-    background: var(--surface-hover);
-    border-color: var(--accent);
-    transform: translateY(-2px);
-    box-shadow: 0 10px 30px -12px var(--accent-glow);
-  }
+  /* Toda la fila es clicable sin anidar enlaces */
+  .post-title a::after { content: ''; position: absolute; inset: 0; }
+
+  .post:hover .post-title a { color: var(--accent); background-size: 100% 2px; }
+
+  p { font-size: 0.98rem; line-height: 1.6; color: var(--text-2); }
 
   .post-meta {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0.6rem;
-    font-size: 0.8rem;
-    color: var(--text-muted);
+    gap: 0.5rem 1rem;
+    margin-top: 0.9rem;
+    font-size: 0.85rem;
+    color: var(--muted);
   }
 
-  h2 {
-    font-size: 1.25rem;
-    font-weight: 700;
-    margin: 0 0 0.5rem;
-    transition: color 0.2s;
-  }
+  .post-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; list-style: none; padding: 0; }
 
-  .card:hover h2 { color: var(--accent); }
+  /* Las etiquetas quedan por encima del enlace de la fila */
+  .post-tags a { position: relative; z-index: 1; }
 
-  p {
-    font-size: 0.92rem;
-    color: var(--text-muted);
-    margin: 0 0 1rem;
-    line-height: 1.6;
-  }
-
-  .card-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-  }
-
-  .tags { display: flex; gap: 0.4rem; flex-wrap: wrap; }
-
-  .tag {
-    font-family: var(--font-mono);
-    font-size: 0.72rem;
-    color: var(--text-muted);
-    background: var(--surface-hover);
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    padding: 0.1rem 0.6rem;
-  }
-
-  .arrow {
-    color: var(--accent);
-    opacity: 0;
-    transform: translateX(-6px);
-    transition: opacity 0.2s, transform 0.2s;
-  }
-
-  .card:hover .arrow { opacity: 1; transform: translateX(0); }
-
-  @media (max-width: 720px) {
-    .card { padding: 1.2rem; }
-    .arrow { opacity: 1; transform: none; }
+  @media (max-width: 640px) {
+    .post { grid-template-columns: 1fr; gap: 0.35rem; padding: 1.3rem 0; }
+    .post-title { font-size: 1.15rem; }
   }
 </style>

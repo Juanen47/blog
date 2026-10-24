@@ -22,6 +22,7 @@ type Props = CollectionEntry<'blog'>['data'] & {
 
 const { title, description, pubDate, updatedDate, heroImage, tags, headings = [], readingTime, wordCount, newer, older } = Astro.props;
 const toc = headings.filter((h) => h.depth === 2 || h.depth === 3);
+const slug = Astro.url.pathname.split('/').filter(Boolean).pop() ?? '';
 const url = new URL(Astro.url.pathname, Astro.site).href;
 
 const jsonLd = {
@@ -76,26 +77,25 @@ const jsonLd = {
     <main id="main">
       <div class="post-layout">
         <article>
-          <div class="post-header">
+          <header class="post-header">
             <nav class="breadcrumb" aria-label="Ruta">
               <a href="/blog/">Artículos</a> <span aria-hidden="true">/</span>
             </nav>
-            <div class="post-date">
-              <FormattedDate date={pubDate} />
-              {updatedDate && (
-                <span class="updated">· Actualizado: <FormattedDate date={updatedDate} /></span>
-              )}
-              {readingTime && <span>· {readingTime} min de lectura</span>}
-            </div>
-            <h1>{title}</h1>
+            <h1 style={`view-transition-name: t-${slug}`}>{title}</h1>
             <p class="post-description">{description}</p>
+            <div class="post-meta">
+              <span><FormattedDate date={pubDate} /></span>
+              {updatedDate && (
+                <span>Actualizado el <FormattedDate date={updatedDate} /></span>
+              )}
+              {readingTime && <span>{readingTime} min de lectura</span>}
+            </div>
             {tags && (
-              <div class="tags">
-                {tags.map((tag: string) => <a class="tag" href={`/etiquetas/${tagSlug(tag)}/`}>{tag}</a>)}
-              </div>
+              <ul class="tags" aria-label="Etiquetas">
+                {tags.map((tag: string) => <li><a class="tag" href={`/etiquetas/${tagSlug(tag)}/`}>{tag}</a></li>)}
+              </ul>
             )}
-            <hr />
-          </div>
+          </header>
           {heroImage && <Image class="hero-image" src={heroImage} alt="" widths={[720, 1440]} sizes="(max-width: 760px) 100vw, 720px" loading="eager" />}
           <div class="prose" id="post-content">
             <slot />
@@ -106,17 +106,19 @@ const jsonLd = {
               <p class="author-name">{SITE.author}</p>
               <p>Administrador de sistemas y redes en Albacete, especializado en ciberseguridad. Documento aquí lo que monto en mi homelab.</p>
               <p class="author-links">
-                <a href="/about/">Sobre mí</a> · <a href={SITE.web}>jelopez.link</a> · <a href={SITE.linkedin} rel="noopener">LinkedIn</a>
+                <a href="/about/">Sobre mí</a>
+                <a href={SITE.web}>jelopez.link</a>
+                <a href={SITE.linkedin} rel="noopener">LinkedIn</a>
               </p>
             </div>
           </aside>
           {(newer || older) && (
             <nav class="post-nav" aria-label="Más artículos">
               {older ? (
-                <a href={older.href} class="prev"><span>← Anterior</span>{older.title}</a>
+                <a href={older.href} class="prev" rel="prev"><span>Anterior</span>{older.title}</a>
               ) : <span />}
               {newer && (
-                <a href={newer.href} class="next"><span>Siguiente →</span>{newer.title}</a>
+                <a href={newer.href} class="next" rel="next"><span>Siguiente</span>{newer.title}</a>
               )}
             </nav>
           )}
@@ -150,6 +152,29 @@ const jsonLd = {
   }
   window.addEventListener('scroll', updateProgress, { passive: true });
   updateProgress();
+
+  // Tabla de contenidos: marca la sección que se está leyendo
+  const tocLinks = new Map<string, HTMLAnchorElement>();
+  document.querySelectorAll<HTMLAnchorElement>('.toc a[href^="#"]').forEach((a) => {
+    tocLinks.set(decodeURIComponent(a.hash.slice(1)), a);
+  });
+  if (tocLinks.size && 'IntersectionObserver' in window) {
+    const visible = new Set<string>();
+    const order = [...tocLinks.keys()];
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => (e.isIntersecting ? visible.add(e.target.id) : visible.delete(e.target.id)));
+        const current = order.find((id) => visible.has(id));
+        if (!current) return;
+        tocLinks.forEach((a, id) => a.classList.toggle('active', id === current));
+      },
+      { rootMargin: '-72px 0px -65% 0px' },
+    );
+    order.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) io.observe(el);
+    });
+  }
 
   // Enlaces ancla en h2/h3 y botón "copiar" en los bloques de código
   document.querySelectorAll<HTMLElement>('#post-content :is(h2, h3)[id]').forEach((h) => {
@@ -188,87 +213,85 @@ const jsonLd = {
 </script>
 
 <style>
-  main {
-    max-width: 1080px;
-  }
-
   .progress {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
-    height: 2px;
+    height: 3px;
     background: var(--accent);
     transform: scaleX(0);
     transform-origin: left;
     z-index: 300;
+    view-transition-name: progress;
   }
 
   .post-layout {
     display: grid;
-    grid-template-columns: minmax(0, 720px) 220px;
-    gap: 3.5rem;
-    justify-content: center;
+    grid-template-columns: minmax(0, 46rem) 15rem;
+    gap: clamp(2.5rem, 5vw, 4.5rem);
+    justify-content: space-between;
   }
 
   article { min-width: 0; }
 
-  .post-header { margin-bottom: 2rem; }
-
-  .post-date {
-    font-size: 0.82rem;
-    color: var(--text-muted);
-    margin-bottom: 1rem;
+  .post-header {
+    padding-bottom: 2rem;
+    margin-bottom: 2.25rem;
+    border-bottom: 1px solid var(--line);
   }
 
-  .post-date time { font-family: var(--font-mono); }
+  .breadcrumb { font-size: 0.92rem; margin-bottom: 1rem; color: var(--muted); }
+  .breadcrumb a { color: var(--text-2); text-decoration: none; }
+  .breadcrumb a:hover { color: var(--accent); }
 
   h1 {
-    font-size: 2.4rem;
-    font-weight: 800;
-    margin-bottom: 0.75rem;
-    line-height: 1.1;
+    font-size: clamp(1.9rem, 3.9vw, 2.8rem);
+    font-stretch: 112%;
+    line-height: 1.05;
+    margin-bottom: 1rem;
+    max-width: 26ch;
   }
 
   .post-description {
-    font-size: 1.05rem;
-    color: var(--text-muted);
-    margin-bottom: 1.25rem;
-    line-height: 1.6;
+    font-size: clamp(1.08rem, 1.6vw, 1.22rem);
+    line-height: 1.55;
+    color: var(--text-2);
+    max-width: 60ch;
   }
 
-  .tags { display: flex; gap: 0.4rem; flex-wrap: wrap; }
-
-  .breadcrumb { font-size: 0.82rem; margin-bottom: 0.5rem; color: var(--text-muted); }
-
-  .tag {
-    text-decoration: none;
-    transition: color 0.2s, border-color 0.2s;
-    font-family: var(--font-mono);
-    font-size: 0.72rem;
-    color: var(--text-muted);
-    background: var(--surface-hover);
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    padding: 0.1rem 0.6rem;
+  .post-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 0;
+    margin-top: 1.4rem;
+    font-size: 0.9rem;
+    color: var(--muted);
   }
 
+  .post-meta span + span::before {
+    content: '';
+    display: inline-block;
+    width: 1px;
+    height: 0.9em;
+    margin: 0 0.85rem;
+    vertical-align: -0.1em;
+    background: var(--line-strong);
+  }
 
-  .tag:hover { color: var(--accent); border-color: var(--accent); text-decoration: none; }
+  .tags { display: flex; gap: 0.4rem; flex-wrap: wrap; list-style: none; padding: 0; margin-top: 1rem; }
 
-  hr { margin: 1.75rem 0 2rem; }
-
-  .hero-image { width: 100%; margin-bottom: 2rem; }
+  .hero-image { width: 100%; margin-bottom: 2rem; border-radius: var(--radius); }
 
   .author-box {
     display: flex;
     gap: 1.1rem;
     align-items: flex-start;
-    margin-top: 3rem;
+    margin-top: 3.5rem;
     padding: 1.4rem 1.5rem;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 14px;
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    border-radius: 16px;
   }
 
   .avatar {
@@ -278,41 +301,51 @@ const jsonLd = {
     width: 3rem;
     height: 3rem;
     border-radius: 12px;
-    background: linear-gradient(135deg, #ff6d71, #6d4aff);
-    font-family: var(--font-heading);
+    background: var(--text);
+    color: var(--bg);
     font-weight: 800;
-    color: #fff;
+    font-stretch: var(--wide);
+    position: relative;
   }
 
-  .author-box p { font-size: 0.9rem; margin-bottom: 0.4rem; }
-  .author-box .author-name { font-weight: 600; color: var(--text); margin-bottom: 0.2rem; }
-  .author-box .author-links { margin: 0; font-size: 0.85rem; color: var(--text-muted); }
+  .avatar::after {
+    content: '';
+    position: absolute;
+    right: 0.45rem;
+    bottom: 0.45rem;
+    width: 0.4rem;
+    height: 0.4rem;
+    background: var(--accent);
+  }
+
+  .author-box p { font-size: 0.95rem; }
+  .author-box .author-name { font-weight: 650; color: var(--text); margin-bottom: 0.2rem; }
+  .author-box .author-links { display: flex; flex-wrap: wrap; gap: 0.25rem 1.1rem; margin-top: 0.6rem; font-size: 0.92rem; font-weight: 600; }
 
   .post-nav {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
-    margin-top: 2rem;
+    margin-top: 1.25rem;
   }
 
   .post-nav a {
     display: block;
-    padding: 1rem 1.2rem;
-    border: 1px solid var(--border);
+    padding: 1.1rem 1.25rem;
+    border: 1px solid var(--line);
     border-radius: 14px;
-    background: var(--surface);
+    background: var(--bg-raised);
     color: var(--text);
-    font-weight: 500;
-    font-size: 0.92rem;
-    line-height: 1.45;
-    transition: border-color 0.2s, background 0.2s;
+    font-weight: 600;
+    font-size: 0.98rem;
+    line-height: 1.4;
+    text-decoration: none;
+    transition: border-color 0.2s, color 0.2s;
   }
 
-  .post-nav a:hover { border-color: var(--accent); background: var(--surface-hover); text-decoration: none; }
-  .post-nav span { display: block; font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono); margin-bottom: 0.3rem; }
+  .post-nav a:hover { border-color: var(--accent); color: var(--accent); }
+  .post-nav span { display: block; font-size: 0.82rem; font-weight: 500; color: var(--muted); margin-bottom: 0.3rem; }
   .post-nav .next { text-align: right; }
-
-  .prose { font-size: 1rem; line-height: 1.8; }
 
   /* Tabla de contenidos */
   .toc {
@@ -321,39 +354,37 @@ const jsonLd = {
     align-self: start;
     max-height: calc(100vh - 7rem);
     overflow-y: auto;
-    font-size: 0.82rem;
+    font-size: 0.9rem;
+    padding-top: 0.35rem;
   }
 
-  .toc-title {
-    font-family: var(--font-mono);
-    font-size: 0.72rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    margin-bottom: 0.75rem;
+  .toc-title { font-weight: 700; font-stretch: var(--wide); color: var(--text); margin-bottom: 0.75rem; }
+
+  .toc ul { list-style: none; padding: 0; margin: 0; border-left: 1px solid var(--line); }
+  .toc li { margin: 0; line-height: 1.35; }
+  .toc li.sub a { padding-left: 1.6rem; font-size: 0.86rem; }
+
+  .toc a {
+    display: block;
+    padding: 0.32rem 0 0.32rem 0.9rem;
+    margin-left: -1px;
+    border-left: 2px solid transparent;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.15s, border-color 0.15s;
   }
 
-  .toc ul {
-    list-style: none;
-    padding: 0 0 0 0.9rem;
-    margin: 0;
-    border-left: 1px solid var(--border);
-  }
-
-  .toc li { margin: 0 0 0.45rem; line-height: 1.4; }
-  .toc li.sub { padding-left: 0.8rem; }
-
-  .toc a { color: var(--text-muted); transition: color 0.15s; }
-  .toc a:hover { color: var(--accent); text-decoration: none; }
+  .toc a:hover { color: var(--text); }
+  .toc a.active { color: var(--text); border-left-color: var(--accent); font-weight: 600; }
 
   @media (max-width: 1100px) {
-    .post-layout { grid-template-columns: minmax(0, 720px); }
+    .post-layout { grid-template-columns: minmax(0, 46rem); justify-content: center; }
     .toc { display: none; }
   }
 
   @media (max-width: 640px) {
-    h1 { font-size: 1.7rem; }
     .post-nav { grid-template-columns: 1fr; }
     .post-nav .next { text-align: left; }
+    .author-box { flex-direction: column; }
   }
 </style>

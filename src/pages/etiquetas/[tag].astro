@@ -31,11 +31,11 @@ const n = posts.length === 1 ? '1 artículo' : `${posts.length} artículos`;
   <body>
     <Header />
     <main id="main">
-      <div class="tag-header">
-        <p class="eyebrow"><a href="/etiquetas/">Etiquetas</a> /</p>
-        <h1>#{tag}</h1>
+      <header class="page-head">
+        <nav class="crumb" aria-label="Ruta"><a href="/etiquetas/">Temas</a> /</nav>
+        <h1>{tag}</h1>
         <p>{n}</p>
-      </div>
+      </header>
       <PostList posts={posts} />
     </main>
     <Footer />
@@ -43,8 +43,5 @@ const n = posts.length === 1 ? '1 artículo' : `${posts.length} artículos`;
 </html>
 
 <style>
-  .tag-header { margin-bottom: 2.5rem; }
-  .eyebrow { font-size: 0.85rem; margin-bottom: 0.5rem; color: var(--text-muted); }
-  h1 { font-family: var(--font-mono); font-size: 2rem; font-weight: 700; margin-bottom: 0.25rem; }
-  .tag-header p:last-child { color: var(--text-muted); margin: 0; }
+  .crumb { font-size: 0.92rem; color: var(--muted); margin-bottom: 0.5rem; }
 </style>
