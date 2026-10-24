@@ -23,9 +23,9 @@ soporte para más proveedores de DNS Challenge y actualizaciones más frecuentes
 
 En el homelab NPMplus tiene un rol concreto: **acceso interno LAN con SSL válido**.
 
-Cuando accedo a `https://status.jelopez.link` desde dentro de casa, AdGuard resuelve 
-el dominio a NPMplus (192.168.1.103), que termina el SSL y reenvía la petición 
-al servicio real — en este caso Uptime Kuma en el puerto 3001.
+Cuando accedo a la página de estado (por ejemplo `https://status.midominio.com`) desde dentro de casa, AdGuard resuelve 
+el dominio a NPMplus, que termina el SSL y reenvía la petición 
+al servicio real — en este caso Uptime Kuma.
 
 Esto permite tener URLs limpias con candado verde para los servicios internos, 
 sin que estén expuestos a Internet. El acceso externo va por Cloudflare Tunnel, 
@@ -45,8 +45,7 @@ Este tipo de cosas pasan — los scripts de comunidad a veces tienen problemas
 puntuales con ciertas versiones o configuraciones. La solución suele ser ejecutar 
 el script directamente en lugar de hacerlo a través del menú.
 
-El resultado es un LXC dedicado (LXC 103, IP 192.168.1.103) con NPMplus accesible 
-en el puerto 81 para administración.
+El resultado es un LXC dedicado con NPMplus y su panel web de administración.
 
 ## Certificados SSL con DNS Challenge
 
@@ -70,14 +69,14 @@ En resumen: NPMplus gestiona el SSL interno (LAN), Cloudflare gestiona el SSL ex
 
 ## Proxy hosts activos
 
-| Dominio | Reenvía a | SSL |
+| Servicio | Reenvía a | SSL |
 |---|---|---|
-| `status.jelopez.link` | 192.168.1.101:3001 | Let's Encrypt / Cloudflare DNS |
-| `hmrr.jelopez.link` | 192.168.1.106:7575 | Let's Encrypt / Cloudflare DNS |
-| `nube.jelopez.link` | https://192.168.1.107:443 | Let's Encrypt / Cloudflare DNS |
+| Uptime Kuma | LXC de Uptime Kuma (http) | Let's Encrypt / Cloudflare DNS |
+| Homarr | LXC de Homarr (http) | Let's Encrypt / Cloudflare DNS |
+| Nextcloud | LXC de Nextcloud (https, 443) | Let's Encrypt / Cloudflare DNS |
 
-El WireGuard Dashboard ya no pasa por NPMplus: se accede por IP directa 
-(`http://192.168.1.100:10086`), porque `wg.jelopez.link` lo usa el DDNS como endpoint de la VPN.
+El WireGuard Dashboard ya no pasa por NPMplus: se accede por IP directa, 
+porque el subdominio que usaba es ahora el endpoint de la VPN (DDNS).
 
 ## Una regla importante
 
@@ -93,7 +92,7 @@ su puerto TLS. Lo cuento en el post de [Nextcloud](/blog/nextcloud-nube-personal
 
 ## Acceso
 
-NPMplus se administra directamente por IP: `http://192.168.1.103:81`. 
+NPMplus se administra directamente por IP desde la LAN. 
 No está detrás de ningún proxy — intentarlo genera un bucle de redirecciones 
 que impide acceder. IP directa y listo.
 

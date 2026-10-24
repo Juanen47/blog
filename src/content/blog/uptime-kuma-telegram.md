@@ -20,8 +20,7 @@ de todos los servicios de un vistazo.
 
 ## Instalación
 
-Como el resto de servicios, la instalación se hizo con ProxMenux en un LXC dedicado 
-(LXC 101, IP 192.168.1.101).
+Como el resto de servicios, la instalación se hizo con ProxMenux en un LXC dedicado.
 
 ## Monitores configurados
 
@@ -29,14 +28,14 @@ La estrategia de monitorización es simple: **ping** para verificar que cada LXC
 está vivo, y **HTTP(s) con palabra clave** para Nextcloud, que es el servicio que 
 más me importa que funcione de verdad (no solo que el contenedor esté encendido).
 
-| Monitor | Tipo | Host |
+| Monitor | Tipo | Destino |
 |---|---|---|
-| AdGuard | Ping | 192.168.1.102 |
-| NPMplus | Ping | 192.168.1.103 |
-| Cloudflared | Ping | 192.168.1.104 |
-| WireGuard | Ping | 192.168.1.100 |
-| Nextcloud (web) | HTTP(s) - Palabra clave | `https://nube.jelopez.link/status.php` |
-| Nextcloud (backend 107) | HTTP(s) - Palabra clave | `https://192.168.1.107/status.php` |
+| AdGuard | Ping | IP del LXC |
+| NPMplus | Ping | IP del LXC |
+| Cloudflared | Ping | IP del LXC |
+| WireGuard | Ping | IP del LXC |
+| Nextcloud (web) | HTTP(s) - Palabra clave | `status.php` por el nombre interno (vía NPMplus) |
+| Nextcloud (backend) | HTTP(s) - Palabra clave | `status.php` por la IP del LXC |
 
 Los dos monitores de Nextcloud buscan `"maintenance":false` en la respuesta de 
 `status.php`, así que también avisan si Nextcloud se queda en modo mantenimiento. 

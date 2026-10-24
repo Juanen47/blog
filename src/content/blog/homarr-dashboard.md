@@ -15,22 +15,22 @@ La diferencia respecto a simplemente guardar marcadores en el navegador es la in
 
 ## Instalación con ProxMenux
 
-Como el resto de servicios del homelab, la instalación se hizo con **ProxMenux**, que despliega Homarr en un LXC dedicado (LXC 106, IP 192.168.1.106) en pocos minutos.
+Como el resto de servicios del homelab, la instalación se hizo con **ProxMenux**, que despliega Homarr en un LXC dedicado en pocos minutos.
 
-Una vez instalado, el dashboard es accesible en el puerto 7575 del LXC.
+Una vez instalado, el dashboard es accesible directamente en un puerto del propio LXC.
 
 ## Acceso interno con DNS y SSL
 
-Homarr está accesible internamente via `https://hmrr.jelopez.link` — el mismo esquema que el resto de servicios internos:
+Homarr está accesible internamente por un nombre propio con HTTPS (aquí, `panel.midominio.com` como ejemplo) — el mismo esquema que el resto de servicios internos:
 
-1. **AdGuard Home** resuelve `hmrr.jelopez.link` a NPMplus (192.168.1.103)
-2. **NPMplus** termina el SSL con certificado Let's Encrypt via Cloudflare DNS Challenge y reenvía al LXC de Homarr (192.168.1.106:7575)
+1. **AdGuard Home** resuelve ese nombre a NPMplus
+2. **NPMplus** termina el SSL con certificado Let's Encrypt via Cloudflare DNS Challenge y reenvía al LXC de Homarr
 
 Sin estar expuesto a Internet — solo accesible desde la LAN o via WireGuard.
 
 ## Integración con Proxmox
 
-Una de las funciones más útiles es la integración nativa con Proxmox. Desde **Configuración → Integraciones → Proxmox** se introduce la URL del nodo (`https://192.168.1.254:8006`) y las credenciales, y Homarr muestra en tiempo real:
+Una de las funciones más útiles es la integración nativa con Proxmox. Desde **Configuración → Integraciones → Proxmox** se introduce la URL del nodo y las credenciales (mejor un usuario de solo lectura), y Homarr muestra en tiempo real:
 
 - Estado del nodo (`pve`) con CPU y RAM actuales
 - Lista de VMs y LXCs con su estado
@@ -42,21 +42,21 @@ En el dashboard actual se ve el nodo `pve` con CPU al 1.4% y RAM al 21.8% — ú
 El dashboard está organizado en cuatro secciones:
 
 **Infraestructura** — los servicios base de la red:
-- PVE (Proxmox) → `https://192.168.1.254:8006`
-- NPMplus → `http://192.168.1.103:81`
-- Router → IP del router
+- PVE (Proxmox) → panel web del nodo
+- NPMplus → panel de administración
+- Router → panel del router
 - Cloudflare → `https://dash.cloudflare.com`
 
 **Seguridad & Red** — servicios de seguridad y acceso:
-- AdGuard Home → `http://192.168.1.102:3000`
-- WireGuard Dashboard → `http://192.168.1.100:10086`
+- AdGuard Home → panel de AdGuard
+- WireGuard Dashboard → panel de WireGuard
 
 **Monitorización** — servicios de seguimiento:
-- Uptime Kuma → `https://status.jelopez.link`
+- Uptime Kuma → su nombre interno con HTTPS
 
 **Nube & Datos** — servicios de uso personal:
-- Nextcloud → `https://nube.jelopez.link`
+- Nextcloud → su nombre interno con HTTPS
 
 ## El resultado
 
-Con Homarr como punto de entrada, no hay que recordar IPs ni puertos. Un marcador en el navegador que apunta a `hmrr.jelopez.link` da acceso a toda la infraestructura del homelab desde cualquier dispositivo de la LAN o via WireGuard desde fuera.
+Con Homarr como punto de entrada, no hay que recordar IPs ni puertos. Un marcador en el navegador que apunta a Homarr da acceso a toda la infraestructura del homelab desde cualquier dispositivo de la LAN o via WireGuard desde fuera.
