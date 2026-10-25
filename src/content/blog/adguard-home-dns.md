@@ -1,5 +1,6 @@
 ---
 pubDate: 2026-06-01
+updatedDate: 2026-10-25
 title: 'AdGuard Home — DNS interno y bloqueo de publicidad'
 tags: ["homelab", "adguard", "dns", "privacidad"]
 description: "Cómo funciona AdGuard Home en el homelab, qué hace exactamente y por qué es una de las piezas más útiles de la infraestructura."
@@ -54,7 +55,7 @@ Esto permite acceder a los servicios internos por nombre en lugar de por IP:
 | Dominio | Resuelve a | Servicio |
 |---|---|---|
 | `status.midominio.com` | IP de NPMplus | Uptime Kuma via NPMplus |
-| `panel.midominio.com` | IP de NPMplus | Homarr via NPMplus |
+| `panel.midominio.com` | IP de NPMplus | [Panel del homelab](/blog/panel-homelab-propio/) via NPMplus |
 | `nube.midominio.com` | IP de NPMplus | Nextcloud via NPMplus |
 
 *(Los nombres son de ejemplo: los reales no existen en el DNS público y no los publico.)*

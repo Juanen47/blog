@@ -1,5 +1,6 @@
 ---
 pubDate: 2026-06-01
+updatedDate: 2026-10-25
 title: 'NPMplus — reverse proxy con SSL interno'
 tags: ["homelab", "npmplus", "nginx", "ssl", "proxy"]
 description: "Qué es NPMplus, cómo está instalado en el homelab y cómo gestiona el SSL interno para los servicios de la LAN."
@@ -72,7 +73,7 @@ En resumen: NPMplus gestiona el SSL interno (LAN), Cloudflare gestiona el SSL ex
 | Servicio | Reenvía a | SSL |
 |---|---|---|
 | Uptime Kuma | LXC de Uptime Kuma (http) | Let's Encrypt / Cloudflare DNS |
-| Homarr | LXC de Homarr (http) | Let's Encrypt / Cloudflare DNS |
+| [Panel del homelab](/blog/panel-homelab-propio/) | LXC del panel (http) | Let's Encrypt / Cloudflare DNS |
 | Nextcloud | LXC de Nextcloud (https, 443) | Let's Encrypt / Cloudflare DNS |
 
 El WireGuard Dashboard ya no pasa por NPMplus: se accede por IP directa, 
