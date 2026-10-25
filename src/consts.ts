@@ -5,7 +5,7 @@ export const SITE = {
   email: 'juanenlopez1459@gmail.com',
   web: 'https://jelopez.link',
   github: 'https://github.com/Juanen47',
-  linkedin: 'https://www.linkedin.com/in/juan-enrique-l%C3%B3pez-monteagudo-2063ab305/',
+  linkedin: 'https://www.linkedin.com/in/juanen-lopez-monteagudo/',
 };
 
 export const SITE_TITLE = 'Blog de homelab, Proxmox y ciberseguridad · Juan Enrique López';
