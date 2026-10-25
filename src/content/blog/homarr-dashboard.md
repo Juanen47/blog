@@ -5,6 +5,10 @@ tags: ["homelab", "homarr", "dashboard", "proxmox"]
 description: "Qué es Homarr, cómo está instalado y cómo centraliza el acceso a todos los servicios del homelab desde un único panel."
 ---
 
+> **Actualización (25/10/2026):** Homarr ya no forma parte del homelab. Lo he sustituido por un
+> panel propio hecho en Python, que además de los accesos muestra datos detallados, lanza tareas y
+> enseña los registros. Lo cuento en [Un panel propio para el homelab](/blog/panel-homelab-propio/).
+
 Tener varios servicios corriendo en el homelab está bien, pero acceder a cada uno por IP y puerto es incómodo. Homarr resuelve eso — un dashboard centralizado desde el que acceder a todos los servicios, con integración nativa con Proxmox para ver el estado del servidor en tiempo real.
 
 ## Qué es Homarr
