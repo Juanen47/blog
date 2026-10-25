@@ -1,0 +1,186 @@
+---
+pubDate: "2026-10-25"
+title: 'Un panel propio para el homelab (adiós, Homarr)'
+tags: ["homelab", "dashboard", "python", "proxmox", "seguridad"]
+description: "Por qué cambié Homarr por un panel hecho a medida en Python: qué muestra, qué tareas puede lanzar, cómo está protegido y qué problemas salieron por el camino."
+---
+
+Desde junio la página de inicio del homelab era [Homarr](/blog/homarr-dashboard/). Cumplía, pero se
+me quedaba corto: era sobre todo una colección de accesos directos con un par de indicadores, y
+para cualquier cosa más (ver cuándo fue la última copia de un contenedor, qué está bloqueando el
+DNS, quién está conectado a la VPN) tenía que abrir el panel de cada servicio. Así que he hecho uno
+propio, en Python, con el mismo aspecto que [la web](https://jelopez.link).
+
+## Qué quería
+
+- **Ver datos de verdad**, no solo un punto verde: CPU, memoria y disco de cada contenedor, las
+  copias de seguridad, el DNS, la VPN, la nube y la vigilancia externa.
+- **Lanzar tareas** sin entrar en Proxmox: arrancar, apagar o reiniciar un contenedor, hacer un
+  snapshot o una copia.
+- **Consultar registros** desde el mismo sitio.
+- Que se pareciera a la web y se pudiera usar también desde el móvil.
+
+## Qué muestra
+
+La portada es una rejilla de tarjetas que se refrescan solas:
+
+- **Proxmox**: el nodo y cada contenedor con su CPU y memoria, con una pequeña gráfica de las
+  últimas horas.
+- **Copias de seguridad**: la última copia de cada contenedor y si salió bien, y lo que queda
+  libre en el disco de copias.
+- **Uptime Kuma**: el estado de cada monitor.
+- **AdGuard Home**: consultas del día, porcentaje bloqueado, los dominios más bloqueados y los
+  clientes que más preguntan.
+- **WireGuard**: qué dispositivos están conectados y cuándo hablaron por última vez.
+- **Nextcloud**: versión, modo mantenimiento, usuarios activos y espacio libre.
+- **Healthchecks.io**: el estado de los latidos que el servidor manda hacia fuera.
+
+Cada contenedor tiene además su propia página con el detalle, sus snapshots y sus últimas tareas.
+Hay una página de **registros** con el log del host, las tareas de Proxmox, las últimas consultas
+DNS y el registro del propio panel. Y abajo del todo siguen los **accesos** a los paneles de
+administración de cada servicio, que era lo único que de verdad usaba de Homarr.
+
+## Cómo encaja
+
+<figure class="diagram">
+<div class="diagram-scroll">
+<svg class="dg" viewBox="0 0 720 270" role="img" xmlns="http://www.w3.org/2000/svg">
+  <title>Cómo llega una petición al panel y de dónde saca los datos</title>
+  <desc>El navegador, desde casa o por la VPN, entra por HTTPS al proxy inverso, que reenvía al panel. El panel pide los datos por API, con credenciales propias, a Proxmox, Uptime Kuma, AdGuard Home, WireGuard, Nextcloud y Healthchecks.io.</desc>
+  <defs>
+    <marker id="p1-a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" class="dg-mk" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+
+  <rect x="36" y="36" width="170" height="56" rx="8" class="dg-dev"/>
+  <text class="dg-t" x="121" y="60" text-anchor="middle">Mi navegador</text>
+  <text class="dg-s" x="121" y="77" text-anchor="middle">en casa o por la VPN</text>
+
+  <rect x="275" y="36" width="170" height="56" rx="8" class="dg-net"/>
+  <text class="dg-t" x="360" y="60" text-anchor="middle">Proxy inverso</text>
+  <text class="dg-s" x="360" y="77" text-anchor="middle">NPMplus · HTTPS</text>
+
+  <rect x="514" y="36" width="170" height="56" rx="8" class="dg-svc"/>
+  <text class="dg-t" x="599" y="60" text-anchor="middle">Panel</text>
+  <text class="dg-s" x="599" y="77" text-anchor="middle">contraseña + 2FA</text>
+
+  <path d="M206 64 L271 64" class="dg-a" marker-end="url(#p1-a)"/>
+  <path d="M445 64 L510 64" class="dg-a" marker-end="url(#p1-a)"/>
+  <text class="dg-l" x="238" y="56" text-anchor="middle">nombre</text>
+  <text class="dg-l" x="477" y="56" text-anchor="middle">solo él</text>
+
+  <rect x="20" y="130" width="680" height="120" rx="12" class="dg-zone"/>
+
+  <path d="M599 92 L599 112 M80 112 L640 112" class="dg-a"/>
+  <path d="M80 112 L80 162" class="dg-a" marker-end="url(#p1-a)"/>
+  <path d="M192 112 L192 162" class="dg-a" marker-end="url(#p1-a)"/>
+  <path d="M304 112 L304 162" class="dg-a" marker-end="url(#p1-a)"/>
+  <path d="M416 112 L416 162" class="dg-a" marker-end="url(#p1-a)"/>
+  <path d="M528 112 L528 162" class="dg-a" marker-end="url(#p1-a)"/>
+  <path d="M640 112 L640 162" class="dg-a" marker-end="url(#p1-a)"/>
+
+  <rect x="28" y="166" width="104" height="50" rx="8" class="dg-host"/>
+  <text class="dg-t" x="80" y="187" text-anchor="middle">Proxmox</text>
+  <text class="dg-s" x="80" y="203" text-anchor="middle">CT · copias · logs</text>
+
+  <rect x="140" y="166" width="104" height="50" rx="8" class="dg-svc"/>
+  <text class="dg-t" x="192" y="187" text-anchor="middle">Uptime Kuma</text>
+  <text class="dg-s" x="192" y="203" text-anchor="middle">monitores</text>
+
+  <rect x="252" y="166" width="104" height="50" rx="8" class="dg-net"/>
+  <text class="dg-t" x="304" y="187" text-anchor="middle">AdGuard</text>
+  <text class="dg-s" x="304" y="203" text-anchor="middle">DNS y bloqueos</text>
+
+  <rect x="364" y="166" width="104" height="50" rx="8" class="dg-net"/>
+  <text class="dg-t" x="416" y="187" text-anchor="middle">WireGuard</text>
+  <text class="dg-s" x="416" y="203" text-anchor="middle">pares de la VPN</text>
+
+  <rect x="476" y="166" width="104" height="50" rx="8" class="dg-svc"/>
+  <text class="dg-t" x="528" y="187" text-anchor="middle">Nextcloud</text>
+  <text class="dg-s" x="528" y="203" text-anchor="middle">estado y espacio</text>
+
+  <rect x="588" y="166" width="104" height="50" rx="8" class="dg-ext"/>
+  <text class="dg-t" x="640" y="187" text-anchor="middle">Healthchecks</text>
+  <text class="dg-s" x="640" y="203" text-anchor="middle">latidos externos</text>
+
+  <text class="dg-l" x="36" y="238">Cada fuente, por API y con su propia credencial. Solo lectura, salvo las tareas de Proxmox y la pausa de AdGuard.</text>
+</svg>
+</div>
+<figcaption>El panel solo acepta conexiones del proxy inverso, y cada servicio le da una credencial con lo justo.</figcaption>
+</figure>
+
+## Tareas, con red de seguridad
+
+Desde la tarjeta de cada contenedor se puede arrancar, apagar, reiniciar, hacer un snapshot o
+lanzar una copia de seguridad, y desde la de AdGuard pausar la protección unos minutos. Como un
+clic equivocado aquí puede dejar la casa sin Internet, hay tres frenos:
+
+- **El panel no puede apagarse a sí mismo.** Su propio contenedor no tiene botones de energía.
+- **Los contenedores críticos** (DNS, proxy y VPN) piden escribir su número para confirmar, como
+  hace GitHub al borrar un repositorio.
+- **Todo queda registrado**: quién, qué, cuándo y desde dónde, en un registro que también se ve en
+  la página de registros.
+
+Al lanzar una tarea, el panel abre su registro en un diálogo y lo va siguiendo hasta que acaba.
+
+## Cómo está hecho
+
+- **Python con FastAPI** en el servidor y plantillas **Jinja2**. La interactividad es
+  [HTMX](https://htmx.org/): las tarjetas se piden al servidor ya pintadas y se reemplazan solas
+  cada pocos segundos. No hay Node ni paso de compilación.
+- **Un recolector en segundo plano** consulta cada fuente con su propio intervalo (Proxmox cada
+  diez segundos, Nextcloud cada cinco minutos) y guarda el último dato. La página nunca espera a
+  una API lenta, y si una fuente falla su tarjeta lo dice sin tirar el resto.
+- **Las gráficas son SVG** generado en el servidor. Nada de librerías de gráficos.
+- **El aspecto es el de la web**: mismas fuentes, colores y tema claro/oscuro. En el móvil las
+  tarjetas pasan a una columna.
+- Corre en un contenedor propio en Proxmox como servicio de systemd, con un usuario sin
+  privilegios y el sistema de ficheros en solo lectura salvo su carpeta de registros.
+
+## Seguridad
+
+Un panel que puede apagar contenedores es un objetivo apetecible, así que lo traté como tal:
+
+- **Solo desde casa o por la VPN.** Tiene un nombre interno que AdGuard resuelve hacia NPMplus,
+  con certificado de Let's Encrypt por DNS challenge, igual que el resto de servicios internos. No
+  está en el túnel de Cloudflare.
+- **Solo habla con el proxy.** Cualquier conexión que no venga de NPMplus se rechaza, aunque venga
+  de la propia red.
+- **Contraseña y segundo factor.** La contraseña se guarda con scrypt y el segundo factor es TOTP,
+  el de cualquier app de autenticación. La cookie de sesión es `HttpOnly`, `Secure` y
+  `SameSite=Strict`, y cada acción comprueba un token CSRF y el origen de la petición.
+- **CSP estricta**, la misma idea que en la web: `default-src 'none'`, sin scripts ni estilos en
+  línea, y HTMX servido desde el propio panel en lugar de un CDN.
+- **Permisos mínimos en Proxmox.** El panel tiene su propio usuario con un rol hecho a medida: ver
+  el estado y los registros, encender y apagar, hacer snapshots y copias. No puede borrar ni
+  restaurar contenedores, ni tocar la red o los usuarios. El resto de servicios le dan claves de
+  solo lectura siempre que lo permiten.
+- **Los secretos no están en el código.** El repositorio es privado de todos modos, pero los tokens
+  viven en un fichero de configuración en el servidor que solo puede leer el servicio.
+
+## Lo que salió por el camino
+
+- **El certificado de Proxmox no incluía la IP** por la que lo llamaba el panel, y la verificación
+  TLS fallaba. En vez de desactivarla, el panel llama al nodo por el nombre que sí aparece en el
+  certificado.
+- **La interfaz de AdGuard no estaba donde creía.** El puerto que usa el asistente de instalación
+  no es el de la interfaz una vez instalado.
+- **No hay reescritura DNS comodín** en AdGuard, sino una por cada nombre interno. Hasta que no
+  añadí la del panel, el navegador no lo encontraba.
+- **La confirmación escrita no dejaba confirmar.** El campo para escribir el número estaba oculto
+  con el atributo `hidden`, pero una regla de CSS del propio panel lo volvía a mostrar siempre y el
+  botón se quedaba bloqueado. Una línea de CSS (`[hidden] { display: none !important; }`) lo
+  arregló.
+
+## Adiós a Homarr
+
+Con el panel ya funcionando y probado, Homarr se fue: copia final protegida en el disco de copias,
+y después fuera el contenedor, su usuario de Proxmox, su entrada en el proxy, su nombre en AdGuard
+y su monitor en Uptime Kuma. Si alguna vez lo echo de menos, la copia sigue ahí.
+
+## Qué viene después
+
+La siguiente fase es leer los registros de dentro de cada contenedor (por ejemplo, el de NPMplus o
+el de fail2ban) sin tener que entrar por consola. Y, ya que el panel lo sabe todo, que sea él quien
+avise de lo que Uptime Kuma no ve, como un disco que se llena poco a poco.
