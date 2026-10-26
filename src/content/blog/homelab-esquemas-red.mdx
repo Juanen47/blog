@@ -1,6 +1,6 @@
 ---
 pubDate: "2026-10-24"
-updatedDate: "2026-10-25"
+updatedDate: "2026-10-26"
 title: 'El homelab en dos esquemas: la red y los servicios'
 tags: ["homelab", "networking", "proxmox", "seguridad"]
 description: "Dos diagramas para entender el homelab de un vistazo: uno sencillo con cómo entra y sale el tráfico, y otro detallado con qué corre en cada parte del servidor."
@@ -68,7 +68,7 @@ dos: uno sencillo para ver cómo encaja todo y otro con el detalle de cada parte
 
   <rect x="280" y="318" width="180" height="68" rx="8" class="dg-host"/>
   <text class="dg-t" x="370" y="348" text-anchor="middle">Servidor Proxmox</text>
-  <text class="dg-s" x="370" y="366" text-anchor="middle">Intel NUC · 7 contenedores</text>
+  <text class="dg-s" x="370" y="366" text-anchor="middle">Intel NUC · 8 contenedores</text>
 
   <rect x="524" y="324" width="160" height="56" rx="8" class="dg-disk"/>
   <text class="dg-t" x="604" y="348" text-anchor="middle">SSD externo 2 TB</text>
@@ -113,7 +113,7 @@ que alguien de fuera se entere si deja de responder.
 <div class="diagram-scroll">
 <svg class="dg" viewBox="0 0 720 500" role="img" xmlns="http://www.w3.org/2000/svg">
   <title>Esquema detallado de los servicios del homelab</title>
-  <desc>El servidor Proxmox con cuatro contenedores de acceso y red (AdGuard, NPMplus, WireGuard y cloudflared), tres servicios web detrás de NPMplus (Nextcloud, el panel del homelab y Uptime Kuma), el host con sus discos, y a la derecha los servicios externos: Cloudflare, Telegram, Healthchecks.io y correo.</desc>
+  <desc>El servidor Proxmox con cuatro contenedores de acceso y red (AdGuard, NPMplus, WireGuard y cloudflared), cuatro servicios web detrás de NPMplus (Nextcloud, el panel del homelab, Jellyfin y Uptime Kuma), el host con sus discos (el externo guarda las copias, los datos de Nextcloud y las películas), y a la derecha los servicios externos: Cloudflare, Telegram, Healthchecks.io y correo.</desc>
   <defs>
     <marker id="d2-a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
       <path d="M2 1L8 5L2 9" class="dg-mk" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -158,22 +158,27 @@ que alguien de fuera se entere si deja de responder.
   <text class="dg-t" x="440" y="165" text-anchor="middle">cloudflared</text>
   <text class="dg-s" x="440" y="181" text-anchor="middle">túnel sin rutas</text>
 
-  <path d="M206 194 L206 212 L109 212 L109 236" class="dg-a" marker-end="url(#d2-a)"/>
-  <path d="M206 212 L265 212 L265 236" class="dg-a" marker-end="url(#d2-a)"/>
-  <path d="M265 212 L421 212 L421 236" class="dg-a" marker-end="url(#d2-a)"/>
-  <text class="dg-z" x="128" y="230">SERVICIOS WEB</text>
+  <path d="M206 194 L206 236" class="dg-a" marker-end="url(#d2-a)"/>
+  <path d="M206 212 L89 212 L89 236" class="dg-a" marker-end="url(#d2-a)"/>
+  <path d="M206 212 L323 212 L323 236" class="dg-a" marker-end="url(#d2-a)"/>
+  <path d="M323 212 L440 212 L440 236" class="dg-a" marker-end="url(#d2-a)"/>
+  <text class="dg-z" x="99" y="230">SERVICIOS WEB</text>
 
-  <rect x="36" y="240" width="146" height="50" rx="8" class="dg-svc"/>
-  <text class="dg-t" x="109" y="261" text-anchor="middle">Nextcloud</text>
-  <text class="dg-s" x="109" y="277" text-anchor="middle">nube personal · 2FA</text>
+  <rect x="36" y="240" width="106" height="50" rx="8" class="dg-svc"/>
+  <text class="dg-t" x="89" y="261" text-anchor="middle">Nextcloud</text>
+  <text class="dg-s" x="89" y="277" text-anchor="middle">nube · 2FA</text>
 
-  <rect x="192" y="240" width="146" height="50" rx="8" class="dg-svc"/>
-  <text class="dg-t" x="265" y="261" text-anchor="middle">Panel propio</text>
-  <text class="dg-s" x="265" y="277" text-anchor="middle">estado, tareas y logs</text>
+  <rect x="153" y="240" width="106" height="50" rx="8" class="dg-svc"/>
+  <text class="dg-t" x="206" y="261" text-anchor="middle">Panel propio</text>
+  <text class="dg-s" x="206" y="277" text-anchor="middle">estado y tareas</text>
 
-  <rect x="348" y="240" width="146" height="50" rx="8" class="dg-svc"/>
-  <text class="dg-t" x="421" y="261" text-anchor="middle">Uptime Kuma</text>
-  <text class="dg-s" x="421" y="277" text-anchor="middle">estado de servicios</text>
+  <rect x="270" y="240" width="106" height="50" rx="8" class="dg-svc"/>
+  <text class="dg-t" x="323" y="261" text-anchor="middle">Jellyfin</text>
+  <text class="dg-s" x="323" y="277" text-anchor="middle">películas y series</text>
+
+  <rect x="387" y="240" width="106" height="50" rx="8" class="dg-svc"/>
+  <text class="dg-t" x="440" y="261" text-anchor="middle">Uptime Kuma</text>
+  <text class="dg-s" x="440" y="277" text-anchor="middle">monitorización</text>
 
   <text class="dg-z" x="36" y="322">HOST Y ALMACENAMIENTO</text>
 
@@ -187,7 +192,7 @@ que alguien de fuera se entere si deja de responder.
 
   <rect x="270" y="402" width="223" height="50" rx="8" class="dg-disk"/>
   <text class="dg-t" x="381" y="423" text-anchor="middle">SSD externo 2 TB (USB)</text>
-  <text class="dg-s" x="381" y="439" text-anchor="middle">copias diarias + datos de Nextcloud</text>
+  <text class="dg-s" x="381" y="439" text-anchor="middle">copias, Nextcloud y películas</text>
 
   <path d="M381 380 L381 398" class="dg-a" marker-end="url(#d2-a)"/>
 
@@ -211,7 +216,7 @@ que alguien de fuera se entere si deja de responder.
   <text class="dg-s" x="615" y="439" text-anchor="middle">errores y backups</text>
 
   <path d="M493 169 L534 169" class="dg-tun" marker-end="url(#d2-o)"/>
-  <path d="M494 265 L534 265" class="dg-a" marker-end="url(#d2-a)"/>
+  <path d="M493 265 L534 265" class="dg-a" marker-end="url(#d2-a)"/>
   <path d="M493 351 L534 351" class="dg-a" marker-end="url(#d2-a)"/>
   <path d="M493 370 L516 370 L516 427 L534 427" class="dg-a" marker-end="url(#d2-a)"/>
 </svg>
@@ -241,6 +246,9 @@ WireGuard) no pasan por el proxy y solo se abren desde la LAN.
   [este post](/blog/nextcloud-nube-personal/).
 - **El panel del homelab** es la página de inicio: estado de cada servicio, tareas y registros. Lo
   hice a medida para sustituir a Homarr y lo cuento en [este post](/blog/panel-homelab-propio/).
+- **Jellyfin** sirve las películas y series al móvil o la tele, con transcodificación por la
+  gráfica del NUC. Lee la misma carpeta del SSD externo que Nextcloud usa para subir los archivos;
+  lo cuento en [este post](/blog/jellyfin-peliculas-series/).
 - **Uptime Kuma** vigila que todo responda y avisa por Telegram si algo cae.
 
 ### Host y almacenamiento
@@ -248,7 +256,8 @@ WireGuard) no pasan por el proxy y solo se abren desde la LAN.
 El propio Proxmox tiene su parte del trabajo: un firewall que solo admite conexiones de la red de
 casa, 2FA en el acceso, los logs en RAM con volcado a disco cada hora para no desgastar el SSD, y
 una copia de seguridad diaria de todos los contenedores al SSD externo. Ese mismo disco guarda los
-datos de Nextcloud, así que los archivos no ocupan el SSD interno.
+datos de Nextcloud y las películas y series de Jellyfin, así que los archivos no ocupan el SSD
+interno.
 
 ### Fuera de casa
 
@@ -269,6 +278,7 @@ todo el detalle.
 - **Copias de seguridad.** Antes no había ninguna. Ahora cada noche se copian todos los
   contenedores a un SSD externo y he probado a restaurar uno.
 - **Nextcloud** ha ocupado el sitio de Netdata como nuevo servicio del servidor.
+- **Jellyfin** para películas y series, compartiendo carpeta con Nextcloud en el SSD externo.
 - **Authelia ya no está.** Protegía el único servicio publicado en el túnel, y al no publicar
   nada dejó de tener sentido mantenerlo. Si algún día publico algo, irá detrás de Cloudflare
   Access, que pide login antes de que el tráfico llegue a casa.
