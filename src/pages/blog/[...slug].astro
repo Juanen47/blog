@@ -1,24 +1,38 @@
 ---
 import { type CollectionEntry, render } from 'astro:content';
 import BlogPost from '../../layouts/BlogPost.astro';
-import { getPosts, readingTime } from '../../utils';
+import { getPosts, readingTime, relatedPosts, seriesPosts, SERIES_SLUGS } from '../../utils';
 
 export async function getStaticPaths() {
 	const posts = await getPosts();
 	// posts va del más reciente al más antiguo: "siguiente" es el más nuevo.
-	return posts.map((post, i) => ({
-		params: { slug: post.id },
-		props: { post, newer: posts[i - 1], older: posts[i + 1] },
-	}));
+	return posts.map((post, i) => {
+		const series = post.data.series ? seriesPosts(posts, post.data.series) : [];
+		const nextInSeries = series[series.findIndex((p) => p.id === post.id) + 1];
+		// Los relacionados no repiten lo que ya se enlaza abajo (anterior, siguiente, siguiente de la serie).
+		const shown = new Set([posts[i - 1]?.id, posts[i + 1]?.id, nextInSeries?.id]);
+		return {
+			params: { slug: post.id },
+			props: {
+				post,
+				newer: posts[i - 1],
+				older: posts[i + 1],
+				related: relatedPosts(post, posts.filter((p) => !shown.has(p.id))),
+				series,
+			},
+		};
+	});
 }
 
 interface Props {
 	post: CollectionEntry<'blog'>;
 	newer?: CollectionEntry<'blog'>;
 	older?: CollectionEntry<'blog'>;
+	related: CollectionEntry<'blog'>[];
+	series: CollectionEntry<'blog'>[];
 }
 
-const { post, newer, older } = Astro.props;
+const { post, newer, older, related, series } = Astro.props;
 const { Content, headings } = await render(post);
 ---
 
@@ -29,6 +43,12 @@ const { Content, headings } = await render(post);
 	wordCount={(post.body ?? '').split(/\s+/).filter(Boolean).length}
 	newer={newer && { href: `/blog/${newer.id}/`, title: newer.data.title }}
 	older={older && { href: `/blog/${older.id}/`, title: older.data.title }}
+	related={related.map((p) => ({ href: `/blog/${p.id}/`, title: p.data.title, description: p.data.description, readingTime: readingTime(p.body) }))}
+	seriesInfo={post.data.series ? {
+		name: post.data.series,
+		href: `/serie/${SERIES_SLUGS[post.data.series]}/`,
+		parts: series.map((p) => ({ href: `/blog/${p.id}/`, title: p.data.title, current: p.id === post.id })),
+	} : undefined}
 >
 	<Content />
 </BlogPost>

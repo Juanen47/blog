@@ -3,6 +3,8 @@ pubDate: "2026-10-21"
 title: 'Nextcloud — mi propia nube en el homelab en lugar de pagar más iCloud'
 tags: ["homelab", "nextcloud", "proxmox", "backups", "wireguard", "seguridad"]
 description: "Cómo he montado Nextcloud en un LXC con ProxMenux, con los datos en un SSD externo, accesible solo desde casa y por WireGuard, con 2FA y backups diarios. Y los errores que cometí por el camino."
+series: "El homelab desde cero"
+seriesOrder: 8
 ---
 
 Uso iCloud en el iPhone y en el PC. Funciona bien, pero el plan gratuito se queda corto en

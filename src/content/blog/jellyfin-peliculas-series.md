@@ -3,6 +3,8 @@ pubDate: "2026-10-26"
 title: 'Jellyfin — películas y series en el homelab, compartiendo carpeta con Nextcloud'
 tags: ["homelab", "jellyfin", "nextcloud", "proxmox", "lxc"]
 description: "Cómo he montado Jellyfin en un LXC con la gráfica del NUC, leyendo la misma carpeta del SSD externo que Nextcloud usa para subir los archivos, cómo he repartido el disco y los tres tropiezos del camino."
+series: "El homelab desde cero"
+seriesOrder: 9
 ---
 
 Tenía algunas películas y capítulos sueltos repartidos entre el PC y discos viejos, y quería

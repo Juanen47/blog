@@ -11,6 +11,8 @@ import { AUTHOR_LD, SITE } from '../consts';
 import { tagSlug } from '../utils';
 
 interface PostLink { href: string; title: string }
+interface RelatedLink extends PostLink { description: string; readingTime: number }
+interface SeriesInfo { name: string; href: string; parts: (PostLink & { current: boolean })[] }
 
 type Props = CollectionEntry<'blog'>['data'] & {
   headings?: MarkdownHeading[];
@@ -18,9 +20,13 @@ type Props = CollectionEntry<'blog'>['data'] & {
   wordCount?: number;
   newer?: PostLink;
   older?: PostLink;
+  related?: RelatedLink[];
+  seriesInfo?: SeriesInfo;
 };
 
-const { title, description, pubDate, updatedDate, heroImage, tags, headings = [], readingTime, wordCount, newer, older } = Astro.props;
+const { title, description, pubDate, updatedDate, heroImage, tags, headings = [], readingTime, wordCount, newer, older, related = [], seriesInfo } = Astro.props;
+const partIndex = seriesInfo ? seriesInfo.parts.findIndex((p) => p.current) : -1;
+const nextPart = seriesInfo && partIndex >= 0 ? seriesInfo.parts[partIndex + 1] : undefined;
 const toc = headings.filter((h) => h.depth === 2 || h.depth === 3);
 const slug = Astro.url.pathname.split('/').filter(Boolean).pop() ?? '';
 const url = new URL(Astro.url.pathname, Astro.site).href;
@@ -43,7 +49,12 @@ const jsonLd = {
       image: new URL(heroImage?.src ?? '/og.png', Astro.site).href,
       author: AUTHOR_LD,
       publisher: { '@id': AUTHOR_LD['@id'] },
-      isPartOf: { '@type': 'Blog', '@id': `${SITE.url}/#blog`, name: SITE.name, url: SITE.url },
+      isPartOf: seriesInfo
+        ? [
+            { '@type': 'Blog', '@id': `${SITE.url}/#blog`, name: SITE.name, url: SITE.url },
+            { '@type': 'CreativeWorkSeries', name: seriesInfo.name, url: new URL(seriesInfo.href, Astro.site).href },
+          ]
+        : { '@type': 'Blog', '@id': `${SITE.url}/#blog`, name: SITE.name, url: SITE.url },
     },
     {
       '@type': 'BreadcrumbList',
@@ -96,10 +107,30 @@ const jsonLd = {
               </ul>
             )}
           </header>
+          {seriesInfo && (
+            <details class="series-box">
+              <summary>
+                <span class="series-part">Parte {partIndex + 1} de {seriesInfo.parts.length}</span>{' '}
+                de la serie <strong>{seriesInfo.name}</strong>
+              </summary>
+              <ol>
+                {seriesInfo.parts.map((p) => (
+                  <li>{p.current ? <span aria-current="page">{p.title}</span> : <a href={p.href}>{p.title}</a>}</li>
+                ))}
+              </ol>
+              <a class="series-all" href={seriesInfo.href}>Ver la serie completa</a>
+            </details>
+          )}
           {heroImage && <Image class="hero-image" src={heroImage} alt="" widths={[720, 1440]} sizes="(max-width: 760px) 100vw, 720px" loading="eager" />}
           <div class="prose" id="post-content">
             <slot />
           </div>
+          {nextPart && (
+            <a class="series-next" href={nextPart.href}>
+              <span>Siguiente en la serie «{seriesInfo!.name}»</span>
+              {nextPart.title}
+            </a>
+          )}
           <aside class="author-box" aria-label="Sobre el autor">
             <div class="avatar" aria-hidden="true">JL</div>
             <div>
@@ -112,6 +143,20 @@ const jsonLd = {
               </p>
             </div>
           </aside>
+          {related.length > 0 && (
+            <section class="related" aria-labelledby="related-title">
+              <h2 id="related-title">También te puede interesar</h2>
+              <ul>
+                {related.map((p) => (
+                  <li>
+                    <a href={p.href}>{p.title}</a>
+                    <p>{p.description}</p>
+                    <span>{p.readingTime} min de lectura</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
           {(newer || older) && (
             <nav class="post-nav" aria-label="Más artículos">
               {older ? (
@@ -322,6 +367,55 @@ const jsonLd = {
   .author-box .author-name { font-weight: 650; color: var(--text); margin-bottom: 0.2rem; }
   .author-box .author-links { display: flex; flex-wrap: wrap; gap: 0.25rem 1.1rem; margin-top: 0.6rem; font-size: 0.92rem; font-weight: 600; }
 
+  .series-box {
+    margin: 0 0 2rem;
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 0.85rem 1.1rem;
+    font-size: 0.95rem;
+    color: var(--text-2);
+  }
+  .series-box summary { cursor: pointer; list-style-position: outside; margin-left: 1rem; }
+  .series-box summary::marker { color: var(--muted); }
+  .series-box strong { color: var(--text); font-weight: 650; }
+  .series-part { font-weight: 650; color: var(--accent); }
+  .series-box ol { margin: 0.85rem 0 0.5rem; padding-left: 1.6rem; display: grid; gap: 0.3rem; }
+  .series-box li::marker { color: var(--muted); font-variant-numeric: tabular-nums; }
+  .series-box [aria-current] { color: var(--text); font-weight: 650; }
+  .series-box ol a { color: var(--text-2); }
+  .series-box ol a:hover { color: var(--accent); }
+  .series-all { display: inline-block; font-size: 0.9rem; font-weight: 600; margin-top: 0.25rem; }
+  .series-next {
+    display: block;
+    margin-top: 2.5rem;
+    padding: 1rem 1.2rem;
+    border: 1px solid var(--accent);
+    border-radius: var(--radius);
+    background: var(--accent-soft);
+    color: var(--text);
+    font-weight: 650;
+    text-decoration: none;
+  }
+  .series-next span { display: block; font-size: 0.82rem; font-weight: 500; color: var(--muted); margin-bottom: 0.25rem; }
+  .series-next:hover { color: var(--accent); }
+  .related { margin-top: 3rem; }
+  .related h2 { font-size: 1.15rem; font-stretch: var(--wide); margin-bottom: 1rem; }
+  .related ul { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: 0.9rem; }
+  .related li {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    padding: 1rem 1.1rem;
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+  }
+  .related a { font-weight: 650; color: var(--text); text-decoration: none; line-height: 1.3; }
+  .related a:hover { color: var(--accent); }
+  .related p { font-size: 0.88rem; color: var(--text-2); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .related span { margin-top: auto; font-size: 0.8rem; color: var(--muted); }
   .post-nav {
     display: grid;
     grid-template-columns: 1fr 1fr;

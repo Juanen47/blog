@@ -4,11 +4,15 @@ import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
 import PostList from '../components/PostList.astro';
 import { AUTHOR_LD, SITE, SITE_DESCRIPTION, SITE_TITLE } from '../consts';
-import { countTags, getPosts, readingTime, tagSlug, formatDate } from '../utils';
+import { countTags, getPosts, readingTime, tagSlug, formatDate, seriesPosts, SERIES_SLUGS } from '../utils';
 
 const posts = await getPosts();
 const tags = countTags(posts).slice(0, 14);
 const [latest, ...rest] = posts;
+const featured = posts.find((p) => p.data.featured);
+const seriesName = 'El homelab desde cero';
+const series = seriesPosts(posts, seriesName);
+const seriesMinutes = series.reduce((m, p) => m + readingTime(p.body), 0);
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -49,6 +53,30 @@ const jsonLd = {
           <div><dt>Copia de seguridad</dt><dd>Cada noche</dd></div>
         </dl>
       </section>
+
+      {featured && (
+        <section class="start" aria-labelledby="start-title">
+          <h2 class="section-head" id="start-title">Empieza por aquí</h2>
+          <div class="start-grid">
+            <article class="feature">
+              <p class="feature-meta">
+                <span>Visión general</span>
+                <span>{readingTime(featured.body)} min de lectura</span>
+              </p>
+              <h3><a href={`/blog/${featured.id}/`}>{featured.data.title}</a></h3>
+              <p class="feature-desc">{featured.data.description}</p>
+            </article>
+            <nav class="series-card" aria-labelledby="series-title">
+              <h3 id="series-title"><a href={`/serie/${SERIES_SLUGS[seriesName]}/`}>{seriesName}</a></h3>
+              <p>{series.length} artículos en orden, del hardware al panel propio. Unos {seriesMinutes} minutos de lectura en total.</p>
+              <ol>
+                {series.slice(0, 5).map((p) => <li><a href={`/blog/${p.id}/`}>{p.data.title}</a></li>)}
+              </ol>
+              <a class="more" href={`/serie/${SERIES_SLUGS[seriesName]}/`}>Ver los {series.length} artículos de la serie</a>
+            </nav>
+          </div>
+        </section>
+      )}
 
       {latest && (
         <section class="latest" aria-labelledby="latest-title">
@@ -131,7 +159,24 @@ const jsonLd = {
 
   @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 
-  .latest, .recent, .topics { margin-top: clamp(2.5rem, 5vw, 3.5rem); }
+  .start-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 1rem; align-items: stretch; }
+  .series-card {
+    padding: clamp(1.2rem, 2.6vw, 1.8rem);
+    background: var(--bg-sunken);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+  }
+  .series-card h3 { font-size: 1.25rem; font-stretch: var(--wide); margin-bottom: 0.5rem; }
+  .series-card h3 a { color: var(--text); text-decoration: none; }
+  .series-card h3 a:hover { color: var(--accent); }
+  .series-card > p { font-size: 0.95rem; color: var(--text-2); }
+  .series-card ol { margin: 1rem 0 0; padding-left: 1.4rem; display: grid; gap: 0.35rem; font-size: 0.95rem; }
+  .series-card li::marker { color: var(--muted); font-variant-numeric: tabular-nums; }
+  .series-card ol a { color: var(--text-2); text-decoration: none; }
+  .series-card ol a:hover { color: var(--accent); }
+  @media (max-width: 860px) { .start-grid { grid-template-columns: 1fr; } }
+
+  .start, .latest, .recent, .topics { margin-top: clamp(2.5rem, 5vw, 3.5rem); }
 
   .feature {
     position: relative;

@@ -4,6 +4,8 @@ updatedDate: 2026-10-25
 title: 'AdGuard Home — DNS interno y bloqueo de publicidad'
 tags: ["homelab", "adguard", "dns", "privacidad"]
 description: "Cómo funciona AdGuard Home en el homelab, qué hace exactamente y por qué es una de las piezas más útiles de la infraestructura."
+series: "El homelab desde cero"
+seriesOrder: 4
 ---
 
 Si tuviera que elegir un único servicio del homelab que más impacto tiene en el día a día, 
