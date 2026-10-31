@@ -4,6 +4,8 @@ pubDate: 2026-08-19
 description: "Cómo audité con Lynis los LXCs expuestos de mi homelab en Proxmox, qué medidas apliqué en cada uno y cuánto mejoró el índice de seguridad. Guía práctica con comandos reales."
 tags: ["seguridad", "proxmox", "lynis", "hardening", "linux", "homelab"]
 draft: false
+series: "El homelab desde cero"
+seriesOrder: 7
 ---
 
 > **Actualización (octubre 2026):** desde esta auditoría he retirado Authelia del homelab (no protegía ningún servicio publicado y solo añadía superficie de ataque), así que he quitado sus datos de este post.

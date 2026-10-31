@@ -3,6 +3,8 @@ pubDate: "2026-06-01"
 title: 'WireGuard — acceso remoto seguro a la LAN'
 tags: ["homelab", "wireguard", "vpn", "proxmox"]
 description: "Qué es WireGuard, cómo está instalado en el homelab y para qué lo uso realmente."
+series: "El homelab desde cero"
+seriesOrder: 3
 ---
 
 Tener servicios en casa está muy bien, pero tarde o temprano necesitas acceder a ellos

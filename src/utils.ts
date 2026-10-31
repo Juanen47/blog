@@ -36,3 +36,24 @@ export function countTags(posts: CollectionEntry<'blog'>[]): { tag: string; slug
 export function formatDate(date: Date): string {
   return date.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
 }
+
+export const SERIES_SLUGS: Record<string, string> = { 'El homelab desde cero': 'el-homelab-desde-cero' };
+
+/** Artículos de una serie, en su orden. */
+export function seriesPosts(posts: CollectionEntry<'blog'>[], name: string): CollectionEntry<'blog'>[] {
+  return posts
+    .filter((p) => p.data.series === name)
+    .sort((a, b) => (a.data.seriesOrder ?? 99) - (b.data.seriesOrder ?? 99));
+}
+
+/** Hasta `n` artículos relacionados: los que más etiquetas comparten y, a igualdad, los más recientes. */
+export function relatedPosts(post: CollectionEntry<'blog'>, posts: CollectionEntry<'blog'>[], n = 3): CollectionEntry<'blog'>[] {
+  const mine = new Set(post.data.tags ?? []);
+  return posts
+    .filter((p) => p.id !== post.id)
+    .map((p) => ({ p, score: (p.data.tags ?? []).filter((t) => mine.has(t)).length }))
+    .filter(({ score }) => score > 0)
+    .sort((a, b) => b.score - a.score || b.p.data.pubDate.valueOf() - a.p.data.pubDate.valueOf())
+    .slice(0, n)
+    .map(({ p }) => p);
+}

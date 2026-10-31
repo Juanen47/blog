@@ -3,6 +3,8 @@ pubDate: 2026-06-01
 title: 'El hardware del homelab y por qué elegí Proxmox'
 tags: ["homelab", "proxmox", "hardware", "virtualizacion"]
 description: "Qué máquina corre el homelab, cómo está organizada y por qué elegí Proxmox frente a un Debian con Docker directo."
+series: "El homelab desde cero"
+seriesOrder: 1
 ---
 
 Todo homelab empieza con una decisión de hardware. En mi caso la prioridad era clara: 

@@ -4,6 +4,8 @@ updatedDate: 2026-10-25
 title: 'NPMplus — reverse proxy con SSL interno'
 tags: ["homelab", "npmplus", "nginx", "ssl", "proxy"]
 description: "Qué es NPMplus, cómo está instalado en el homelab y cómo gestiona el SSL interno para los servicios de la LAN."
+series: "El homelab desde cero"
+seriesOrder: 5
 ---
 
 Con AdGuard Home resolviendo los dominios internos a una IP local, faltaba la otra 

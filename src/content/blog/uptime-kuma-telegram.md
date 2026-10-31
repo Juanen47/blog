@@ -3,6 +3,8 @@ pubDate: 2026-06-01
 title: 'Uptime Kuma — monitorización con alertas a Telegram'
 tags: ["homelab", "uptime-kuma", "monitoring", "telegram"]
 description: "Cómo funciona Uptime Kuma en el homelab y cómo configurar las alertas a Telegram para saber en tiempo real si algo se cae."
+series: "El homelab desde cero"
+seriesOrder: 6
 ---
 
 De poco sirve tener servicios bien montados si no sabes cuándo se caen. 
