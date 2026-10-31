@@ -36,6 +36,7 @@ const jsonLd = {
         <ul>
           <li>La red y la seguridad perimetral: firewalls SonicWall y Fortinet, routers MikroTik y switches HP ProCurve y Aruba 6200M gestionados desde HPE Aruba Central, con túneles VPN en WireGuard.</li>
           <li>La virtualización con VMware vSphere y Proxmox, y entornos en Microsoft Azure.</li>
+          <li>La telefonía IP: despliegue, puesta en marcha e incidencias de la centralita 3CX, con terminales Grandstream y Yealink, teléfonos de conferencia y videoporteros.</li>
           <li>Las copias de seguridad con Veeam y Acronis, incluida su validación.</li>
           <li>Active Directory en entorno híbrido y el soporte diario a usuarios.</li>
           <li>Dashboards de monitorización a medida, desarrollados con ayuda de herramientas de IA como Claude Code.</li>
@@ -50,7 +51,8 @@ const jsonLd = {
         <p>Hablo español (nativo) e inglés (B2 en lectura y escritura).</p>
 
         <h2>Mi homelab</h2>
-        <p>Fuera del trabajo mantengo un homelab sobre un Intel NUC (N150, 16 GB de RAM) con Proxmox VE. Todos los servicios corren en contenedores LXC: WireGuard para el acceso remoto, AdGuard Home como DNS interno, NPMplus como reverse proxy y Nextcloud como nube personal. El acceso desde Internet va exclusivamente por Cloudflare Tunnel, así que no hay puertos web abiertos en el router. Lo monitorizo con Uptime Kuma, con alertas a Telegram, hago backup diario de todos los contenedores a un SSD externo y periódicamente lo audito con Lynis. Todo está documentado en <a href="/blog/">el blog</a>.</p>
+        <p>Fuera del trabajo mantengo un homelab sobre un Intel NUC (N150, 16 GB de RAM) con Proxmox VE. Cada servicio corre en su contenedor LXC: <a href="/blog/wireguard-acceso-remoto/">WireGuard</a> para el acceso remoto, <a href="/blog/adguard-home-dns/">AdGuard Home</a> como DNS interno, <a href="/blog/npmplus-reverse-proxy/">NPMplus</a> como proxy inverso, <a href="/blog/nextcloud-nube-personal/">Nextcloud</a> como nube personal, <a href="/blog/jellyfin-peliculas-series/">Jellyfin</a> para películas y series, y un <a href="/blog/panel-homelab-propio/">panel propio</a> hecho en Python para verlo y manejarlo todo.</p>
+        <p>El único puerto abierto en el router es el de la VPN: los servicios solo se alcanzan desde casa o por WireGuard, y la web y este blog se sirven desde Cloudflare. Lo vigilo con <a href="/blog/uptime-kuma-telegram/">Uptime Kuma</a> y alertas a Telegram, más un latido hacia un servicio externo; hago copia diaria de todos los contenedores a un SSD externo y lo audito con <a href="/blog/hardening-homelab-lynis/">Lynis</a>. Tienes el conjunto en <a href="/blog/homelab-esquemas-red/">dos esquemas</a>.</p>
 
         <h2>Qué me interesa aprender</h2>
         <p>El sector no para y yo tampoco quiero hacerlo. Ahora mismo tengo el foco puesto en:</p>
@@ -62,7 +64,8 @@ const jsonLd = {
         <p>Este blog es parte de ese proceso. Aprendo, lo documento, y si le sirve a alguien más, mejor.</p>
 
         <h2>Contacto</h2>
-        <p>Tienes mi trayectoria completa en <a href={SITE.web}>jelopez.link</a>. Si quieres comentar algún artículo o hablar de un puesto, escríbeme a <a href={`mailto:${SITE.email}`}>{SITE.email}</a> o búscame en <a href={SITE.linkedin} rel="noopener">LinkedIn</a>.</p>
+        <p><strong>Ahora mismo busco trabajo</strong>, con incorporación inmediata: en primer lugar en Albacete, presencial o híbrido, y también en localidades cercanas o en remoto. Tienes mi <a href={`${SITE.web}/cv/`}>CV en la web y en PDF</a> y mis proyectos en <a href={`${SITE.web}/#proyectos`}>jelopez.link</a>.</p>
+        <p>Si quieres comentar algún artículo o hablar de un puesto, escríbeme a <a href={`mailto:${SITE.email}`}>{SITE.email}</a> o búscame en <a href={SITE.linkedin} rel="noopener">LinkedIn</a>.</p>
       </article>
     </main>
     <Footer />
