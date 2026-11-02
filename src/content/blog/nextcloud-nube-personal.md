@@ -222,3 +222,6 @@ por defecto **no lleva contraseña**, y hacer doble clic en un `.p12` en Windows
   restaurar uno de los contenedores como CT nuevo, sin red, y comprobar que arranca.
 
 Cuando lo tenga, lo contaré aquí.
+
+> ℹ Actualización (02/11/2026): la copia cifrada fuera de casa ya funciona, con la
+> restauración probada. Lo cuento en [Copia fuera de casa](/blog/copia-fuera-de-casa-restic-r2/).
