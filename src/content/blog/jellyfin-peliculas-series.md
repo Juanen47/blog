@@ -40,8 +40,8 @@ lugar de un límite duro hay un **aviso**: un script diario en el host que hace 
 [Healthchecks.io](https://healthchecks.io) y lo marca en fallo si el disco pasa del 75 % o la
 carpeta de películas de 800 GB.
 
-Y una decisión consciente: **las películas no entran en los backups** ni entrarán en la futura
-copia fuera de casa. Si el SSD muere, se pierden, pero son reemplazables. Lo que no se puede
+Y una decisión consciente: **las películas no entran en los backups** ni en la
+[copia fuera de casa](/blog/copia-fuera-de-casa-restic-r2/). Si el SSD muere, se pierden, pero son reemplazables. Lo que no se puede
 reponer son las copias y los archivos de Nextcloud.
 
 ## La carpeta compartida
