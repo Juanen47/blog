@@ -34,25 +34,27 @@ const jsonLd = {
         <h2>Experiencia</h2>
         <p>En mi último puesto, como <strong>administrador de sistemas y redes en Proceso de la Información CLM</strong> (2025 – 2026), me encargaba de:</p>
         <ul>
-          <li>La red y la seguridad perimetral: firewalls SonicWall y Fortinet, routers MikroTik y switches HP ProCurve y Aruba 6200M gestionados desde HPE Aruba Central, con túneles VPN en WireGuard.</li>
-          <li>La virtualización con VMware vSphere y Proxmox, y entornos en Microsoft Azure.</li>
-          <li>La telefonía IP: despliegue, puesta en marcha e incidencias de la centralita 3CX, con terminales Grandstream y Yealink, teléfonos de conferencia y videoporteros.</li>
+          <li>La seguridad del entorno Microsoft: seguimiento de alertas en Microsoft Defender, Defender Antivirus en los equipos, políticas de acceso condicional en Entra ID y respuesta a incidentes por accesos no autorizados.</li>
+          <li>Microsoft 365 y Azure: usuarios y licencias, Exchange Online, máquinas virtuales securizadas en Azure y una VPN IPsec site-to-site entre Azure y el cortafuegos de la oficina.</li>
+          <li>La red y la seguridad perimetral: cortafuegos SonicWall y Fortinet, una red segmentada en más de 10 VLAN con switches HP ProCurve y Aruba 6200M gestionados desde HPE Aruba Central, routers MikroTik y túneles VPN en WireGuard.</li>
+          <li>La virtualización con VMware vSphere y Proxmox, y Active Directory en entorno híbrido.</li>
           <li>Las copias de seguridad con Veeam y Acronis, incluida su validación.</li>
-          <li>Active Directory en entorno híbrido y el soporte diario a usuarios.</li>
-          <li>Dashboards de monitorización a medida, desarrollados con ayuda de herramientas de IA como Claude Code.</li>
+          <li>La monitorización con Checkmk, el inventario con OCS Inventory y dashboards a medida desarrollados con ayuda de herramientas de IA como Claude Code.</li>
+          <li>La telefonía IP: despliegue e incidencias de la centralita 3CX, con terminales Grandstream y Yealink, teléfonos de conferencia y videoporteros.</li>
+          <li>El soporte diario a usuarios.</li>
         </ul>
-        <p>Antes trabajé como técnico informático en Via Office (bases de datos Velneo y soporte) y, durante varios veranos, en tareas administrativas y de bases de datos en el Club de Tenis Albacete.</p>
+        <p>Antes trabajé como técnico informático en Via Office (ERP Velneo y soporte), hice las prácticas de ASIR en Exadi Business desarrollando módulos sencillos con Velneo y, durante varios veranos, me encargué de tareas administrativas y de bases de datos en el Club de Tenis Albacete.</p>
 
         <h2>Formación</h2>
         <ul>
           <li><strong>Curso de especialización en Ciberseguridad</strong>, IES Leonardo Da Vinci (2024 – 2025)</li>
           <li><strong>Grado Superior en Administración de Sistemas Informáticos en Red (ASIR)</strong>, IES Leonardo Da Vinci (2022 – 2024)</li>
         </ul>
-        <p>Hablo español (nativo) e inglés (B2 en lectura y escritura).</p>
+        <p>Hablo español (nativo) e inglés (competencia básica profesional).</p>
 
         <h2>Mi homelab</h2>
         <p>Fuera del trabajo mantengo un homelab sobre un Intel NUC (N150, 16 GB de RAM) con Proxmox VE. Cada servicio corre en su contenedor LXC: <a href="/blog/wireguard-acceso-remoto/">WireGuard</a> para el acceso remoto, <a href="/blog/adguard-home-dns/">AdGuard Home</a> como DNS interno, <a href="/blog/npmplus-reverse-proxy/">NPMplus</a> como proxy inverso, <a href="/blog/nextcloud-nube-personal/">Nextcloud</a> como nube personal, <a href="/blog/jellyfin-peliculas-series/">Jellyfin</a> para películas y series, y un <a href="/blog/panel-homelab-propio/">panel propio</a> hecho en Python para verlo y manejarlo todo.</p>
-        <p>El único puerto abierto en el router es el de la VPN: los servicios solo se alcanzan desde casa o por WireGuard, y la web y este blog se sirven desde Cloudflare. Lo vigilo con <a href="/blog/uptime-kuma-telegram/">Uptime Kuma</a> y alertas a Telegram, más un latido hacia un servicio externo; hago copia diaria de todos los contenedores a un SSD externo y lo audito con <a href="/blog/hardening-homelab-lynis/">Lynis</a>. Tienes el conjunto en <a href="/blog/homelab-esquemas-red/">dos esquemas</a>.</p>
+        <p>El único puerto abierto en el router es el de la VPN: los servicios solo se alcanzan desde casa o por WireGuard, y la web y este blog se sirven desde Cloudflare. Lo vigilo con <a href="/blog/uptime-kuma-telegram/">Uptime Kuma</a> y alertas a Telegram, más un latido hacia un servicio externo; hago copia diaria de todos los contenedores a un SSD externo, con una <a href="/blog/copia-fuera-de-casa-restic-r2/">copia cifrada fuera de casa</a>, y lo audito con <a href="/blog/hardening-homelab-lynis/">Lynis</a>. Tienes el conjunto en <a href="/blog/homelab-esquemas-red/">dos esquemas</a>.</p>
 
         <h2>Qué me interesa aprender</h2>
         <p>El sector no para y yo tampoco quiero hacerlo. Ahora mismo tengo el foco puesto en:</p>
