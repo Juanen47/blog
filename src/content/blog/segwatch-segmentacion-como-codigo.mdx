@@ -1,0 +1,241 @@
+---
+pubDate: "2026-11-20"
+title: 'segwatch: comprobar que la segmentación de red sigue siendo la que crees'
+tags: ["segwatch", "redes", "seguridad", "vlan", "go", "open source"]
+description: "He escrito segwatch, una herramienta open source que prueba sin parar que cada VLAN solo llega a donde debe: una política en YAML, sondas en cada red, avisos cuando algo cambia, informe para auditorías y soporte de IPv6."
+---
+
+Separar la red en VLAN es de lo primero que se hace para contener un incidente: la wifi de
+invitados no debe ver los servidores, las cámaras no deben salir a Internet y la red de gestión
+solo debe ser accesible desde donde toca. El problema es que esa separación se configura una vez
+y **luego nadie comprueba que siga siendo verdad**. Una regla de más en el cortafuegos, un puerto
+del switch en la VLAN equivocada o un IPv6 que nadie filtró, y la segmentación deja de existir
+sin que salte ninguna alarma.
+
+Para eso he escrito [segwatch](https://github.com/Juanen47/segwatch), una herramienta open source
+(licencia Apache 2.0, en Go) que prueba de forma continua que la red se comporta como dice una
+política escrita en un fichero. Ya está publicada la
+[versión 0.1.0](https://github.com/Juanen47/segwatch/releases/tag/v0.1.0).
+
+## Por qué hacía falta
+
+Probar la segmentación no es opcional en muchos sitios: PCI DSS, por ejemplo, pide pruebas de
+segmentación al menos una vez al año y después de cada cambio (cada seis meses para proveedores de
+servicios). En la práctica casi todo el mundo lo hace a mano, con nmap y una hoja de cálculo, una
+vez al año.
+
+Lo que encontré al buscar alternativas era de cuatro tipos: herramientas manuales con una matriz de
+pings, scripts de auditoría de un solo uso, soluciones solo para Kubernetes (como NetAssert) o
+suites completas de simulación de ataques, caras y pesadas para una pyme o un homelab. Faltaba algo
+pequeño, declarativo y **permanente**, que viva al lado de la monitorización.
+
+## Cómo funciona
+
+<figure class="diagram">
+<div class="diagram-scroll">
+<svg class="dg" viewBox="0 0 720 280" role="img" xmlns="http://www.w3.org/2000/svg">
+  <title>Arquitectura de segwatch</title>
+  <desc>Tres redes, cada una con una sonda. La sonda de invitados intenta llegar a servidores y debe fallar; la de gestión debe poder llegar. Las tres sondas llaman al controlador por HTTPS, que guarda el historial, genera el informe y envía avisos y métricas.</desc>
+  <defs>
+    <marker id="sw-a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" class="dg-mk" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="sw-o" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" class="dg-mk-o" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+
+  <rect x="20" y="16" width="200" height="104" rx="12" class="dg-zone"/>
+  <text class="dg-z" x="36" y="36">RED DE INVITADOS</text>
+  <rect x="50" y="52" width="140" height="50" rx="8" class="dg-svc"/>
+  <text class="dg-t" x="120" y="74" text-anchor="middle">Sonda</text>
+  <text class="dg-s" x="120" y="90" text-anchor="middle">lanza pruebas</text>
+
+  <rect x="260" y="16" width="200" height="104" rx="12" class="dg-zone"/>
+  <text class="dg-z" x="276" y="36">RED DE SERVIDORES</text>
+  <rect x="280" y="52" width="160" height="50" rx="8" class="dg-svc"/>
+  <text class="dg-t" x="360" y="74" text-anchor="middle">Sonda + respondedor</text>
+  <text class="dg-s" x="360" y="90" text-anchor="middle">escucha en cada puerto</text>
+
+  <rect x="500" y="16" width="200" height="104" rx="12" class="dg-zone"/>
+  <text class="dg-z" x="516" y="36">RED DE GESTIÓN</text>
+  <rect x="530" y="52" width="140" height="50" rx="8" class="dg-svc"/>
+  <text class="dg-t" x="600" y="74" text-anchor="middle">Sonda</text>
+  <text class="dg-s" x="600" y="90" text-anchor="middle">lanza pruebas</text>
+
+  <path d="M190 77 L276 77" class="dg-a" marker-end="url(#sw-a)"/>
+  <text class="dg-l" x="233" y="70" text-anchor="middle">deny</text>
+  <path d="M530 77 L444 77" class="dg-a" marker-end="url(#sw-a)"/>
+  <text class="dg-l" x="487" y="70" text-anchor="middle">allow</text>
+
+  <path d="M120 102 L320 190" class="dg-tun" marker-end="url(#sw-o)"/>
+  <path d="M360 102 L360 190" class="dg-tun" marker-end="url(#sw-o)"/>
+  <path d="M600 102 L400 190" class="dg-tun" marker-end="url(#sw-o)"/>
+  <text class="dg-l" x="372" y="150">las sondas llaman (TLS 1.3)</text>
+
+  <rect x="270" y="194" width="180" height="58" rx="8" class="dg-host"/>
+  <text class="dg-t" x="360" y="217" text-anchor="middle">Controlador</text>
+  <text class="dg-s" x="360" y="234" text-anchor="middle">política · historial</text>
+
+  <rect x="20" y="194" width="200" height="58" rx="8" class="dg-dev"/>
+  <text class="dg-t" x="120" y="217" text-anchor="middle">Informe HTML</text>
+  <text class="dg-s" x="120" y="234" text-anchor="middle">esperado frente a observado</text>
+  <path d="M270 223 L224 223" class="dg-a" marker-end="url(#sw-a)"/>
+
+  <rect x="500" y="194" width="200" height="58" rx="8" class="dg-ext"/>
+  <text class="dg-t" x="600" y="214" text-anchor="middle">Avisos y monitorización</text>
+  <text class="dg-s" x="600" y="230" text-anchor="middle">ntfy · webhook · Healthchecks</text>
+  <text class="dg-s" x="600" y="245" text-anchor="middle">Prometheus · Checkmk</text>
+  <path d="M450 223 L496 223" class="dg-a" marker-end="url(#sw-a)"/>
+</svg>
+</div>
+<figcaption>Una sonda por red; el controlador reparte el trabajo, guarda el historial y avisa.</figcaption>
+</figure>
+
+- En cada red se coloca una **sonda**: un único binario estático que puede ir en un contenedor
+  LXC, una máquina virtual o una Raspberry Pi. No necesita root.
+- Las sondas **llaman al controlador** por HTTPS para pedir qué tienen que probar y entregar los
+  resultados. El controlador nunca abre conexiones hacia las redes, así que no hace falta abrir
+  nada hacia dentro de cada VLAN.
+- El controlador guarda el **historial** en SQLite, detecta cuándo una prueba cambia de estado y
+  **avisa**.
+
+### El detalle que lo hace fiable: el respondedor
+
+Comprobar que algo está bloqueado es más difícil de lo que parece. Si desde invitados intento
+conectar al puerto 445 de un servidor y no responde, ¿es porque el cortafuegos lo bloquea o porque
+ese servidor simplemente no tiene nada escuchando en el 445? Un escáner normal no lo distingue, y
+una regla rota puede pasar por buena durante meses.
+
+Por eso la sonda de cada red también hace de **respondedor**: escucha en todos los puertos que
+aparecen en la política y contesta a un mensaje con un número aleatorio. Así una regla `deny` solo
+se da por buena si el tráfico de verdad no llega, no porque no hubiera nada al otro lado. Y si la
+respuesta no lleva el número que se envió, la prueba lo marca: hay otro servicio contestando.
+
+Cada prueba termina en uno de estos resultados:
+
+| Resultado | Qué significa | Con `allow` | Con `deny` |
+|---|---|---|---|
+| `open` | Conexión establecida, o eco UDP/ICMP recibido | cumple | falla |
+| `refused` | Un equipo real respondió con un reset: el paquete llegó | falla | falla |
+| `blocked` | Sin respuesta, inalcanzable, o reset delante de un respondedor que sí escucha | falla | cumple |
+| `unknown` | UDP a un equipo real sin respuesta: no se puede saber | falla | falla |
+
+## La política
+
+Todo se declara en un fichero YAML: las redes, la sonda de cada una, los equipos que interesan y
+los flujos que deben estar permitidos o denegados.
+
+```yaml
+version: 1
+defaults: { interval: 1h, timeout: 2s }
+
+networks:
+  guests:  { cidr: 10.0.30.0/24, probe: { name: probe-guests,  address: 10.0.30.5 } }
+  servers: { cidr: 10.0.10.0/24, probe: { name: probe-servers, address: 10.0.10.5 } }
+
+targets:
+  nas: { address: 10.0.10.20, network: servers }
+
+flows:
+  - name: guests-isolated-from-servers
+    from: guests
+    to: servers
+    ports: [22/tcp, 445/tcp, 53/udp, icmp]
+    expect: deny
+```
+
+Las claves desconocidas se rechazan, así que una errata no puede desactivar una prueba en silencio,
+y `segwatch validate` revisa el fichero entero antes de usarlo.
+
+## Probarlo en cinco minutos
+
+El repositorio trae un laboratorio con Docker: tres redes aisladas que hacen de VLAN, un
+controlador, tres sondas, un servidor web real y un receptor de avisos. Con Go y Docker basta con:
+
+```sh
+cd examples/lab
+./lab.sh up       # compila, crea los tokens y arranca todo
+./lab.sh status   # 12 pruebas, 0 fallan
+./lab.sh drift    # simula un error de cortafuegos: invitados llega a servidores
+./lab.sh status
+```
+
+Tras el `drift`, en unos segundos aparece esto:
+
+```text
+STATUS  FLOW                          PORT     EXPECT  OBSERVED
+FAIL    guests-isolated-from-servers  22/tcp   deny    open
+FAIL    guests-isolated-from-servers  445/tcp  deny    open
+FAIL    guests-isolated-from-servers  53/udp   deny    open
+FAIL    guests-isolated-from-servers  icmp     deny    open
+FAIL    guests-isolated-from-web      80/tcp   deny    open
+
+12 checks, 5 failing, 0 stale
+```
+
+Y en el receptor llega el aviso «segwatch: 5 check(s) failing». Con `./lab.sh heal` todo vuelve a
+cumplir y llega el aviso de recuperación.
+
+El laboratorio no es solo una demo: **encontró dos fallos reales** antes de publicar. Una prueba
+UDP hacia una red sin ruta devolvía «error» en vez de «bloqueado», con lo que una regla correcta
+salía como fallida. Y al arrancar el controlador, mientras las sondas iban levantándose, saltaba una
+falsa alarma que se resolvía sola a los pocos segundos. Ahora los avisos esperan a que pase el
+primer ciclo completo y después informan solo de lo que siga fallando.
+
+## Avisos, informe y monitorización
+
+- **Avisos** a [ntfy](https://ntfy.sh), a cualquier webhook en JSON y a
+  [Healthchecks.io](https://healthchecks.io): cuando una prueba falla, cuando se recupera y cuando
+  una sonda deja de informar. A Healthchecks le llega además un latido periódico, de forma que si
+  el propio controlador se cae, el aviso llega igualmente.
+- **Informe HTML** con `segwatch report`: una sola página sin scripts ni recursos externos, pensada
+  para archivarla o adjuntarla a una auditoría. Incluye la matriz de redes, el porcentaje de
+  cumplimiento de cada prueba en los últimos 30 días, los cambios recientes y el hash de la
+  política que se comprobó.
+
+<figure>
+<img src="/img/segwatch-informe.webp" width="1200" height="520" loading="lazy" decoding="async" alt="Informe de segwatch con el veredicto «5 de 12 pruebas no cumplen la política», los contadores y la matriz de redes: las pruebas de invitados hacia servidores y hacia el servidor web en rojo, el resto en verde." />
+<figcaption>El informe durante el error simulado del laboratorio: las cinco pruebas de invitados en rojo.</figcaption>
+</figure>
+
+- **Prometheus y Checkmk**: el controlador puede servir métricas en `/metrics`, y `segwatch
+  checkmk` funciona como check local con un servicio por flujo. Así la segmentación aparece en la
+  misma monitorización que el resto de la infraestructura.
+
+## IPv6, el agujero de siempre
+
+En muchas redes con doble pila, las VLAN están bien aisladas por IPv4 y **por IPv6 pasa todo**,
+porque nadie escribió las reglas equivalentes. segwatch prueba las dos familias: basta con añadir
+`cidr6` a la red y `address6` a la sonda, y cada flujo se prueba dos veces. En el laboratorio en
+doble pila (`IPV6=1 ./lab.sh up`) el error simulado aparece por las dos vías, 10 fallos de 24
+pruebas.
+
+## La herramienta también tiene que ser segura
+
+Algo que se instala en todas las redes no puede convertirse en el eslabón débil:
+
+- Las sondas **siempre llaman hacia fuera**; el controlador no se conecta a ellas.
+- **TLS 1.3** con el certificado del controlador **fijado por huella**: sin CA ni DNS de por medio.
+- Un **token por sonda**, guardado como hash y comparado en tiempo constante. Cada sonda recibe solo
+  las pruebas de su red, y lo que mande sobre otras se descarta.
+- El respondedor **nunca ejecuta nada**: solo devuelve un eco corto con límite de tamaño y de tiempo.
+- Las direcciones de los avisos **nunca se escriben en el log**, porque un tema de ntfy o un UUID de
+  Healthchecks equivalen a una contraseña.
+- No necesita root, y solo contacta lo que dice la política, con un límite de velocidad: no es un
+  escáner.
+- Los binarios publicados llevan sumas SHA-256 y una **atestación de procedencia** firmada, que
+  demuestra que se compilaron en la CI del repositorio a partir de ese código.
+
+Como cualquier herramienta que envía tráfico entre redes, **solo debe usarse en redes propias o
+con autorización por escrito**.
+
+## Y ahora
+
+La versión 0.1.0 tiene binarios para Linux (amd64, arm64 y Raspberry Pi) y para FreeBSD, pensando
+en OPNsense y pfSense. Todo el código, la documentación en inglés y castellano y el laboratorio
+están en [GitHub](https://github.com/Juanen47/segwatch).
+
+El siguiente paso es llevarlo a un laboratorio con VLAN de verdad en Proxmox, con un router
+nftables entre ellas, y contarlo aquí. Si lo pruebas en tu red y encuentras algo raro, las issues
+del repositorio están abiertas.
